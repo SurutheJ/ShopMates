@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Deal with {{ partner.name }}{% endblock %}
+
+{% block content %}
+  <p><a href="{% url 'deals:inbox' %}">&larr; Inbox</a></p>
+  <div class="section-head">
+    <div>
+      <h1>Deal with {{ partner.name }}</h1>
+      <p><span class="badge badge--{{ deal.status }}">{{ deal.get_status_display }}</span>
+        {% if my_turn %}<strong class="turn">Your move</strong>
+        {% elif deal.is_negotiating %}<span class="muted">Waiting on {{ deal.turn.name }}</span>{% endif %}
+        {% if deal.response_deadline and deal.is_negotiating %}<span class="muted small"> &middot; answer by {{ deal.response_deadline|date:"M j, g:i a" }}</span>{% endif %}
+      </p>
+    </div>
+    <div class="actions">
+      {% if deal.status == 'active' or deal.status == 'completed' %}<a class="btn btn-secondary" href="{% url 'deals:summary' deal.pk %}">Summary</a>{% endif %}
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="card">
+        <h3>Current terms (version {{ version.number }})</h3>
+        <table class="table">
+          <tr><th>Offer</th><td>{{ version.offer_text }}</td></tr>
+          <tr><th>Discount</th><td>{{ version.discount_percent }}%</td></tr>
+          <tr><th>Cap</th><td>{{ version.redemption_cap }} redemptions per shop</td></tr>
+          <tr><th>Dates</th><td>{{ version.start_date|date:"M j, Y" }} to {{ version.end_date|date:"M j, Y" }}</td></tr>
+          {% if version.terms %}<tr><th>Other terms</th><td>{{ version.terms|linebreaksbr }}</td></tr>{% endif %}
+          <tr><th>Proposed by</th><td>{{ version.created_by_shop.name }}</td></tr>
+        </table>
+
+        <div class="actions">
+          {% if can_send %}
+            <form method="post" action="{% url 'deals:action' deal.pk 'send' %}">{% csrf_token %}<button class="btn" type="submit">Send proposal</button></form>
+          {% endif %}
+          {% if my_turn %}
+            <form method="post" action="{% url 'deals:action' deal.pk 'accept' %}">{% csrf_token %}<button class="btn" type="submit">Accept</button></form>
+            <a class="btn btn-secondary" href="{% url 'deals:counter' deal.pk %}">Counter</a>
+            <form method="post" action="{% url 'deals:action' deal.pk 'decline' %}">{% csrf_token %}<button class="btn btn-danger" type="submit">Decline</button></form>
+          {% endif %}
+          {% if can_withdraw %}
+            <form method="post" action="{% url 'deals:action' deal.pk 'withdraw' %}">{% csrf_token %}<button class="btn btn-secondary" type="submit">Withdraw</button></form>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if qr_svg %}
+        <div class="card">
+          <h3>Your QR code</h3>
+          <p class="muted">Display this at your counter. Customers who scan it get a one-time code to use at {{ partner.name }}.
+            {% if deal.status == 'accepted' %}It starts working on {{ version.start_date|date:"M j" }}.{% endif %}</p>
+          <div class="qr">{{ qr_svg }}</div>
+          <p class="small muted">{{ qr_url }}</p>
+        </div>
+      {% endif %}
+
+      <div class="card">
+        <h3>Messages</h3>
+        {% for m in deal_messages %}
+          <div class="message {% if m.shop_id == my_shop.pk %}message--mine{% endif %}">
+            <div class="small muted">{{ m.shop.name }} &middot; {{ m.created_at|date:"M j, g:i a" }}</div>
+            <div>{{ m.body|linebreaksbr }}</div>
+          </div>
+        {% empty %}<p class="muted">No messages yet.</p>{% endfor %}
+        {% if can_message %}
+          <form method="post" action="{% url 'deals:message' deal.pk %}">
+            {% csrf_token %}
+            <div class="field">{{ message_form.body }}</div>
+            <button class="btn btn-secondary" type="submit">Send message</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h3>Version history</h3>
+        {% for v in versions reversed %}
+          <div class="version">
+            <strong>Version {{ v.number }}</strong> by {{ v.created_by_shop.name }}
+            <div class="small muted">{{ v.created_at|date:"M j, g:i a" }}</div>
+            <div class="small">{{ v.discount_percent }}% &middot; cap {{ v.redemption_cap }} &middot; {{ v.start_date|date:"M j" }} to {{ v.end_date|date:"M j" }}</div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="card">
+        <h3>Activity</h3>
+        {% for e in events %}
+          <div class="small"><span class="muted">{{ e.created_at|date:"M j, g:i a" }}</span>
+            {{ e.actor.username|default:"System" }} {{ e.action }}{% if e.note %} ({{ e.note }}){% endif %}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

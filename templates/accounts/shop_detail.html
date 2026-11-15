@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{ shop.name }}{% endblock %}
+
+{% block content %}
+  <div class="card card--medium">
+    <p><a href="{% url 'accounts:discover' %}">&larr; Back to search</a></p>
+    <h1>{{ shop.name }}</h1>
+    <p class="muted">{{ shop.get_category_display }}{% if is_mine %} &middot; this is your shop{% endif %}</p>
+    <table class="table">
+      <tr><th>Address</th><td>{{ shop.address }}, {{ shop.city }}</td></tr>
+      {% if shop.hours %}<tr><th>Hours</th><td>{{ shop.hours }}</td></tr>{% endif %}
+      {% if distance is not None %}<tr><th>Distance</th><td>{{ distance|floatformat:1 }} miles</td></tr>{% endif %}
+      <tr><th>Typical spend</th><td>${{ shop.typical_order_value }}</td></tr>
+    </table>
+    {% if can_propose and my_membership.role == 'owner' %}
+      <a class="btn" href="{% url 'deals:new' shop.pk %}">Propose a deal</a>
+    {% endif %}
+  </div>
+{% endblock %}

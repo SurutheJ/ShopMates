@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Home{% endblock %} | Shopmates</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% block nav %}{% include "partials/_navbar.html" %}{% endblock %}
+  <main class="page">
+    {% if messages %}
+      <ul class="flash-list">
+        {% for message in messages %}<li class="flash flash--{{ message.tags }}">{{ message }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  {% include "partials/_footer.html" %}
+</body>
+</html>

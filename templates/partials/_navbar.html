@@ -1,0 +1,35 @@
+<header class="topnav">
+  <a class="logo" href="{% url 'home' %}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0"/><path d="M10 20v-5h4v5"/>
+    </svg>
+    shopmates
+  </a>
+  <nav class="tabs" aria-label="Main">
+    {% with current=request.resolver_match.view_name %}
+      {% if user.is_authenticated and my_shop %}
+        <a class="tab {% if current == 'deals:inbox' %}active{% endif %}" href="{% url 'deals:inbox' %}">Inbox</a>
+        {% if my_membership.role == 'owner' %}
+          <a class="tab {% if current == 'accounts:discover' or current == 'accounts:shop_detail' %}active{% endif %}" href="{% url 'accounts:discover' %}">Discover</a>
+        {% endif %}
+        <a class="tab {% if current == 'deals:redeem' %}active{% endif %}" href="{% url 'deals:redeem' %}">Redeem</a>
+        {% if my_membership.role == 'owner' %}
+          <a class="tab {% if current == 'accounts:shop_edit' or current == 'accounts:shop_staff' %}active{% endif %}" href="{% url 'accounts:shop_edit' %}">My shop</a>
+        {% endif %}
+      {% endif %}
+      <a class="tab {% if current == 'deals:stats' %}active{% endif %}" href="{% url 'deals:stats' %}">Stats</a>
+    {% endwith %}
+  </nav>
+  <div class="nav-auth">
+    {% if user.is_authenticated %}
+      <span class="muted">Hi, {{ user.username }}</span>
+      <form method="post" action="{% url 'account_logout' %}">
+        {% csrf_token %}
+        <button class="linkish" type="submit">Log out</button>
+      </form>
+    {% else %}
+      <a class="linkish" href="{% url 'account_login' %}">Log in</a>
+      <a class="btn btn-small" href="{% url 'account_signup' %}">Sign up</a>
+    {% endif %}
+  </div>
+</header>

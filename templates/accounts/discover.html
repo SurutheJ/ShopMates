@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Discover{% endblock %}
+
+{% block content %}
+  <h1>Find a neighbor</h1>
+  <form method="get" class="filters">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search by name or street">
+    <select name="category">
+      <option value="">All categories</option>
+      {% for value, label in categories %}
+        <option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn" type="submit">Search</button>
+  </form>
+
+  {% if not can_propose %}<p class="notice">Your shop is waiting for approval. You can browse, but not propose deals yet.</p>{% endif %}
+
+  <div class="grid">
+    {% for r in results %}
+      <a class="card card--link" href="{{ r.shop.get_absolute_url }}">
+        <h3>{{ r.shop.name }}</h3>
+        <p class="muted">{{ r.shop.get_category_display }} &middot; {{ r.shop.address }}</p>
+        {% if r.distance is not None %}<p class="muted">{{ r.distance|floatformat:1 }} miles away</p>{% endif %}
+      </a>
+    {% empty %}
+      <div class="empty"><h3>No shops found</h3><p class="muted">Try a different search, or invite the shop next door to join.</p></div>
+    {% endfor %}
+  </div>
+{% endblock %}

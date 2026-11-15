@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Neighboring shops promote each other{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <h1>Neighboring shops promote each other.</h1>
+    <p class="lead">Agree on a deal with the shop next door, hand customers a QR code, and see exactly how many customers each of you sent the other.</p>
+    {% if user.is_authenticated %}
+      <a class="btn" href="{% url 'accounts:shop_create' %}">Set up your shop</a>
+    {% else %}
+      <a class="btn" href="{% url 'account_signup' %}">Get started</a>
+      <a class="btn btn-secondary" href="{% url 'account_login' %}">Log in</a>
+    {% endif %}
+  </section>
+
+  <section class="steps">
+    <div class="card"><h3>1. Propose</h3><p class="muted">Pick a nearby shop and offer a deal: the discount, the dates, and a cap on redemptions.</p></div>
+    <div class="card"><h3>2. Negotiate</h3><p class="muted">Your neighbor accepts, counters with new terms, or declines. Every version is kept.</p></div>
+    <div class="card"><h3>3. Redeem</h3><p class="muted">Customers scan your QR code. The partner shop's staff confirm their one-time code on a phone.</p></div>
+    <div class="card"><h3>4. Review</h3><p class="muted">See customers sent versus received, the estimated discount cost, and whether the deal is fair.</p></div>
+  </section>
+{% endblock %}

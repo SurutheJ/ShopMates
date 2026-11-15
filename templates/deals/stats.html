@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Stats{% endblock %}
+
+{% block content %}
+  <h1>Shopmates in numbers</h1>
+  <p class="muted">Anonymous totals across all shops. Categories with fewer than {{ stats.min_group_size }} shops are hidden so no single shop can be identified. The same data is at <a href="{% url 'deals:api_stats' %}">/api/stats/</a>.</p>
+
+  <div class="grid">
+    <div class="card"><div class="big">{{ stats.totals.shops }}</div><div class="muted">shops</div></div>
+    <div class="card"><div class="big">{{ stats.totals.deals_started }}</div><div class="muted">deals started</div></div>
+    <div class="card"><div class="big">{{ stats.totals.redemptions }}</div><div class="muted">redemptions</div></div>
+  </div>
+
+  <div class="card">
+    <h3>By shop category</h3>
+    <table class="table">
+      <thead><tr><th>Category</th><th class="right">Shops</th><th class="right">Deals</th><th class="right">Redemptions</th><th class="right">Per shop</th></tr></thead>
+      <tbody>
+        {% for g in stats.by_category %}
+          <tr><td>{{ g.category }}</td><td class="right">{{ g.shops }}</td><td class="right">{{ g.deals }}</td><td class="right">{{ g.redemptions }}</td><td class="right">{{ g.redemptions_per_shop }}</td></tr>
+        {% empty %}
+          <tr><td colspan="5" class="muted">Not enough shops in any category yet to show a breakdown.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if stats.hidden_categories %}<p class="muted small">{{ stats.hidden_categories }} categor{{ stats.hidden_categories|pluralize:"y,ies" }} hidden for privacy.</p>{% endif %}
+  </div>
+{% endblock %}

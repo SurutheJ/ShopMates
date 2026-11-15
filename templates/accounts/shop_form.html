@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{% if creating %}Set up your shop{% else %}My shop{% endif %}{% endblock %}
+
+{% block content %}
+  <div class="card card--medium">
+    <h1>{% if creating %}Set up your shop{% else %}My shop{% endif %}</h1>
+    {% if creating %}
+      <p class="muted">Tell neighbors who you are. You can change this later.</p>
+    {% else %}
+      <p class="muted">Status: <span class="badge badge--{{ my_shop.status }}">{{ my_shop.get_status_display }}</span>
+        &middot; <a href="{% url 'accounts:shop_staff' %}">Manage staff</a></p>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" %}
+      <button class="btn" type="submit">{% if creating %}Create shop{% else %}Save changes{% endif %}</button>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Not available{% endblock %}
+
+{% block content %}
+  <div class="card card--narrow">
+    <h1>Not available</h1>
+    <p class="muted">{{ message }}</p>
+    <p><a href="{% url 'home' %}">Go home</a></p>
+  </div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Sign up{% endblock %}
+
+{% block content %}
+  <div class="card card--narrow">
+    <h1>Create your Shopmates account</h1>
+    <p class="muted">Already have an account? <a href="{% url 'account_login' %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value|urlencode }}{% endif %}">Log in</a>.</p>
+    <form method="post" action="{% url 'account_signup' %}">
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" %}
+      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+      <button class="btn btn-block" type="submit">Sign up</button>
+    </form>
+    {% include "partials/_google_button.html" %}
+  </div>
+{% endblock %}

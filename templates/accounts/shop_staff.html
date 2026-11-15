@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Staff{% endblock %}
+
+{% block content %}
+  <div class="card card--medium">
+    <h1>Staff at {{ my_shop.name }}</h1>
+    <p class="muted">Staff can confirm redemptions at the counter. They can not see deals or exports.</p>
+    <table class="table">
+      <thead><tr><th>Person</th><th>Role</th><th></th></tr></thead>
+      <tbody>
+        {% for m in memberships %}
+          <tr>
+            <td>{{ m.user.username }}</td>
+            <td>{{ m.get_role_display }}</td>
+            <td class="right">
+              {% if m.role == 'staff' %}
+                <form method="post" action="{% url 'accounts:shop_staff_remove' m.pk %}">{% csrf_token %}
+                  <button class="linkish" type="submit">Remove</button></form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <h3>Add staff</h3>
+    <form method="post">
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" %}
+      <button class="btn" type="submit">Add staff member</button>
+    </form>
+  </div>
+{% endblock %}

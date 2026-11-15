@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Your code{% endblock %}
+
+{% block nav %}
+  <header class="topnav"><span class="logo">shopmates</span></header>
+{% endblock %}
+
+{% block content %}
+  <div class="card card--narrow center">
+    <p class="muted">Your code for {{ voucher.honoring_shop.name }}</p>
+    {% if used %}
+      <div class="code code--dead">{{ voucher.code }}</div>
+      <p class="notice">This code was already used.</p>
+    {% elif expired %}
+      <div class="code code--dead">{{ voucher.code }}</div>
+      <p class="notice">This code has expired. Scan the QR code again to get a new one.</p>
+    {% else %}
+      <div class="code">{{ voucher.code }}</div>
+      <p class="lead">{{ version.offer_text }}</p>
+      <p class="muted">{{ version.discount_percent }}% off. Show this at the counter. One use only. Valid until {{ voucher.expires_at|date:"M j, g:i a" }}</p>
+    {% endif %}
+    <p class="muted small">{{ voucher.honoring_shop.address }}, {{ voucher.honoring_shop.city }}</p>
+  </div>
+{% endblock %}

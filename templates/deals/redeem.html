@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Redeem{% endblock %}
+
+{% block content %}
+  <div class="card card--narrow">
+    <h1>Confirm a customer</h1>
+    <p class="muted">Enter the code on the customer's phone.</p>
+    <form method="post">
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" %}
+      <button class="btn btn-block" type="submit">Confirm</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Recently confirmed at {{ my_shop.name }}</h3>
+    <table class="table">
+      <tbody>
+        {% for r in recent %}
+          <tr><td>{{ r.confirmed_at|date:"M j, g:i a" }}</td><td>Sent by {{ r.voucher.referring_shop.name }}</td></tr>
+        {% empty %}<tr><td class="muted">Nothing yet.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

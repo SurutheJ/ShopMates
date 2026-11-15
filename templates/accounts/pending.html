@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}Waiting for approval{% endblock %}
+
+{% block content %}
+  <div class="card card--narrow">
+    <h1>Waiting for approval</h1>
+    <p class="muted">{{ shop.name }} is {{ shop.get_status_display|lower }}. An admin needs to approve new shops before they can propose or redeem deals.</p>
+  </div>
+{% endblock %}

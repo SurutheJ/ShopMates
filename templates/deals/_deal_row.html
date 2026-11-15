@@ -1,0 +1,14 @@
+<a class="row" href="{{ deal.get_absolute_url }}">
+  <div>
+    <strong>{{ deal.partner.name }}</strong>
+    <div class="muted">{{ deal.version.offer_text }}</div>
+  </div>
+  <div class="right">
+    <span class="badge badge--{{ deal.status }}">{{ deal.get_status_display }}</span>
+    {% if deal.response_deadline and deal.status == 'proposed' or deal.response_deadline and deal.status == 'countered' %}
+      <div class="muted small">Answer by {{ deal.response_deadline|date:"M j" }}</div>
+    {% elif deal.status == 'active' or deal.status == 'accepted' %}
+      <div class="muted small">{{ deal.version.start_date|date:"M j" }} to {{ deal.version.end_date|date:"M j" }}</div>
+    {% endif %}
+  </div>
+</a>

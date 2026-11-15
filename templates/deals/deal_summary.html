@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Deal summary{% endblock %}
+
+{% block content %}
+  <p><a href="{{ deal.get_absolute_url }}">&larr; Back to deal</a></p>
+  <div class="section-head">
+    <div>
+      <h1>{{ deal.proposer.name }} and {{ deal.recipient.name }}</h1>
+      <p><span class="badge badge--{{ deal.status }}">{{ deal.get_status_display }}</span>
+        <span class="muted">{{ summary.version.discount_percent }}% &middot; {{ summary.version.start_date|date:"M j" }} to {{ summary.version.end_date|date:"M j" }}</span></p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="{% url 'deals:export_csv' deal.pk %}">Download CSV</a>
+      <a class="btn btn-secondary" href="{% url 'deals:export_json' deal.pk %}">Download JSON</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Customers sent and received</h3>
+    <table class="table">
+      <thead><tr><th>Shop</th><th class="right">Sent to partner</th><th class="right">Received from partner</th><th class="right">Estimated discount cost</th></tr></thead>
+      <tbody>
+        {% for side in summary.sides %}
+          <tr><td>{{ side.shop.name }}</td><td class="right">{{ side.sent }}</td><td class="right">{{ side.received }}</td><td class="right">${{ side.cost|floatformat:2 }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="muted">{{ summary.total }} redemption{{ summary.total|pluralize }} in total. Cost = redemptions honored x discount x the shop's typical spend.</p>
+  </div>
+
+  <div class="card">
+    <h3>Is it fair?</h3>
+    {% if summary.lopsided %}
+      <p class="notice">{{ summary.suggestion }}</p>
+    {% elif summary.total < 4 %}
+      <p class="muted">Not enough redemptions yet to judge. Check back after a few more.</p>
+    {% else %}
+      <p>Both shops are sending a similar number of customers. This looks balanced.</p>
+    {% endif %}
+  </div>
+
+  {% if qr_svg %}
+    <div class="card"><h3>Your QR code</h3><div class="qr">{{ qr_svg }}</div></div>
+  {% endif %}
+{% endblock %}

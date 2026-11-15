@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == 'counter' %}Counter-offer{% else %}Propose a deal{% endif %}{% endblock %}
+
+{% block content %}
+  <div class="card card--medium">
+    <p><a href="{% if mode == 'counter' %}{{ deal.get_absolute_url }}{% else %}{{ recipient.get_absolute_url }}{% endif %}">&larr; Back</a></p>
+    <h1>{% if mode == 'counter' %}Counter-offer to {{ recipient.name }}{% else %}Propose a deal to {{ recipient.name }}{% endif %}</h1>
+    <p class="muted">The same terms apply both ways: customers sent by either shop get this offer at the other.</p>
+
+    <form method="post" id="deal-form">
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" %}
+
+      {% if mode == 'new' %}
+        <div class="field">
+          <label for="id_message">Message to {{ recipient.name }} (optional)</label>
+          <textarea name="message" id="id_message" rows="3" maxlength="1000">{{ message }}</textarea>
+        </div>
+        <p>
+          <button type="button" id="ai-draft" class="btn btn-secondary">Draft with AI</button>
+          <span id="ai-status" class="muted small"></span>
+        </p>
+        <div class="actions">
+          <button class="btn" type="submit" name="action" value="send">Send proposal</button>
+          <button class="btn btn-secondary" type="submit" name="action" value="save">Save as draft</button>
+        </div>
+      {% else %}
+        <button class="btn" type="submit">Send counter-offer</button>
+      {% endif %}
+    </form>
+  </div>
+
+  {% if mode == 'new' %}
+  <script>
+    (function () {
+      var button = document.getElementById('ai-draft');
+      var status = document.getElementById('ai-status');
+      var form = document.getElementById('deal-form');
+      button.addEventListener('click', function () {
+        status.textContent = 'Drafting...';
+        var body = new URLSearchParams({recipient_id: '{{ recipient.pk }}'});
+        fetch('{% url "deals:ai_draft" %}', {
+          method: 'POST',
+          headers: {'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value},
+          body: body
+        }).then(function (r) { return r.json().then(function (d) { return {ok: r.ok, data: d}; }); })
+          .then(function (res) {
+            if (!res.ok) { status.textContent = res.data.error || 'Could not draft.'; return; }
+            var terms = res.data.terms;
+            Object.keys(terms).forEach(function (key) {
+              var el = document.getElementById('id_' + key);
+              if (el) { el.value = terms[key]; }
+            });
+            document.getElementById('id_message').value = res.data.message;
+            status.textContent = res.data.source === 'ai'
+              ? 'Draft filled in. Review and edit before sending.'
+              : 'Starting terms filled in (' + res.data.reason + '). Review before sending.';
+          })
+          .catch(function () { status.textContent = 'Could not draft. Try again.'; });
+      });
+    })();
+  </script>
+  {% endif %}
+{% endblock %}

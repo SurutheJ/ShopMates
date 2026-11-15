@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Neighbor offer{% endblock %}
+
+{% block nav %}
+  <header class="topnav"><span class="logo">shopmates</span></header>
+{% endblock %}
+
+{% block content %}
+  <div class="card card--narrow center">
+    <p class="muted">{{ referring.name }} recommends</p>
+    <h1>{{ honoring.name }}</h1>
+    {% if available %}
+      <p class="lead">{{ version.offer_text }}</p>
+      <p class="muted">{{ honoring.address }}, {{ honoring.city }}{% if honoring.hours %}<br>{{ honoring.hours }}{% endif %}</p>
+      {% if error %}<p class="error">{{ error }}</p>{% endif %}
+      <form method="post">{% csrf_token %}<button class="btn btn-block" type="submit">Get my code</button></form>
+      <p class="small muted">Show the code at the counter. It works once and expires in a day.</p>
+    {% else %}
+      <p class="muted">{{ error|default:"This offer is not available right now." }}</p>
+    {% endif %}
+  </div>
+{% endblock %}
