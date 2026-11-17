@@ -4,7 +4,7 @@
 
 | Task | Current status | Responsible Member | Expected completion |
 |---|---|---|---|
-| Django core features | Negotiation, QR redemption, staff page, summary, exports, roles and restyle done. Terms and privacy pages, notifications still to do | Suruthe Jayachandran and Sahithi Madabhushi (equal) | Dec 3 |
+| Django core features | Complete: negotiation, QR redemption, staff page, summary, exports, sign-in, roles and restyle. Only polish remains, such as terms and privacy pages | Suruthe Jayachandran and Sahithi Madabhushi (equal) | Done, polish by Dec 3 |
 | Database and APIs | 10 models, 4 migrations, public stats API, two private APIs, CSV and JSON export done. Address lookup and a per-user daily limit on Radar still to do | Suruthe Jayachandran and Sahithi Madabhushi (equal) | Nov 30 |
 | AI integration | Match score, Radar, fairness calculator, draft, coach and playbook done. Negotiation copilot and terms checker not started. Real OpenStreetMap request not yet made | Suruthe Jayachandran and Sahithi Madabhushi (equal) | Dec 3 |
 | Evaluation and testing | 479 tests, `evaluate_ai` report, 8 recorded tests, 4 failures and limits analysed, 3 improvements measured. Re-run with the live model and add Radar timings | Suruthe Jayachandran and Sahithi Madabhushi (equal) | Dec 5 |
