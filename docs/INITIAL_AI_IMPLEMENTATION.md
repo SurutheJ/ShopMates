@@ -1,46 +1,47 @@
 # Initial AI implementation
 
-Only what is built and run is described here. Planned work is in ROADMAP.md.
+This covers only what we have built and run. What is left is in ROADMAP.md.
 
-## The AI feature
+## What it does
 
-Help an owner choose a good partner and write a fair deal, without the AI ever deciding a number. Four parts are working:
+We want to help an owner pick a good partner and write a fair deal without the AI deciding any number. Four parts work today:
 
-1. **Deal Radar and match score** rank nearby shops (rule-based).
-2. **Fairness calculator** estimates each shop's profit from the terms (plain arithmetic).
-3. **Draft with AI** writes the offer and a message to the neighbor.
-4. **Deal coach and playbook Q&A** explain a deal and answer questions with cited sources.
+- **Deal Radar and the match score** rank nearby shops by category fit, walking time and opening hours. It is a formula, with no model.
+- **The fairness calculator** takes each shop's average sale, margin, discount and cap, and estimates profit for both. It is plain arithmetic and suggests a discount that would even things out.
+- **Draft with AI** writes the offer and a message to the neighbor. It fills the normal proposal form, and the owner edits it before sending.
+- **The deal coach and playbook Q&A** explain a deal's numbers in a few sentences and answer questions from a short written guide, citing the passages they used.
 
-## Models and techniques
+## Models
 
-- Gemini `gemini-3.1-flash-lite` for the three text tasks, called only from `ai/client.py`. It is a small, fast hosted model, which suits short JSON and short explanations and fits a free host that cannot run a local model.
-- TF-IDF with cosine similarity for retrieval, written in plain Python. The playbook is 14 passages, so embeddings would add a download for little gain.
-- No model for ranking or fairness. We have no past deals to learn from, so a stated formula is more honest than a trained one.
+Gemini (`gemini-3.1-flash-lite`) writes the text for the draft, coach and playbook answers, and we only call it from `ai/client.py`. We chose a small hosted model because the app is meant for a free host that can't run one locally, and the jobs are short.
 
-## Input and output
+For retrieval over the 14 playbook passages we wrote TF-IDF in plain Python. Embeddings would add a download for very little gain.
 
-| Part | In | Out |
+We used no model for ranking or fairness. We have no past deals to learn from, and a stated formula is easier to defend.
+
+## In and out
+
+| Part | Goes in | Comes out |
 |---|---|---|
-| Radar | The owner's shop, shops within 300 to 1000 m, optional OpenStreetMap places | Score 0 to 100, tier, one-line reason, map |
-| Fairness | Ticket size, margin, discount, cap for both shops, months | Profit for each shop, imbalance, a suggested discount, one sentence |
-| Draft | Two shops' profiles, retrieved playbook passages | `offer_text`, `discount_percent`, `redemption_cap`, duration, message (JSON, then checked) |
-| Coach | Numbers the app computed for a deal | Two to four sentences and renewal terms |
-| Playbook | A typed question, retrieved passages | An answer with cited passages |
+| Radar | The owner's shop and shops within 300 to 1000 m | A score from 0 to 100, a tier and a one-line reason, on a list and a map |
+| Fairness | Average sale, margin, discount and cap for both shops, and months | Profit for each shop, how far apart they are, a suggested discount |
+| Draft | Both shops' profiles and the playbook passages we retrieve | Offer text, discount, cap, duration and a message |
+| Coach | Numbers our code computed for a deal | A few sentences and renewal terms |
+| Playbook | A typed question and the passages we retrieve | An answer with the passages it cites |
 
-## How it works with Django
+## In Django
 
-A view reads the shops from the database, calls a function in `ai/` and returns JSON or a rendered page. The draft fills the normal proposal form, so the owner edits it and presses Send; nothing goes to another shop on its own. The draft is checked with `DealTermsForm`, the same form that validates typed terms. Any failure returns a built-in draft and a short reason.
+Each AI feature is a view. It reads the shops from our database, calls a function in our `ai` app and returns JSON or a page. We check every model reply before anyone sees it. A draft goes through the same form that checks typed terms, and any number in the coach text has to be one our code computed. If a check fails, we show a built-in version and say why.
 
-## Evidence it works
+## What we have seen so far
 
-- `python manage.py evaluate_ai`: 9 of 9 simulated bad or good model replies handled correctly (discount 90%, text instead of a number, missing keys, 9999 days, empty offer, a list instead of an object, API error); playbook Hit@1 14/14 on the development set and 4/6 on the held-out set.
-- Fairness worked example (cafe ticket $6, margin 65%; bookstore $24, margin 35%; both 10%, cap 50, 2 months): cafe $132.00, bookstore $240.00, 45% apart, "lopsided", suggestion 17% for the bookstore. This is a unit test.
-- Live Gemini on a laptop: about 1.1 to 1.3 s per draft. Of 15 back-to-back calls, 7 returned HTTP 429 and fell back, and 8 succeeded (0.9 to 5.3 s, median 1.1 s). One browser draft timed out at our 15 s limit and was not reproduced.
-- 479 automated tests pass, none of which make network calls.
+- Our `evaluate_ai` script handled 9 of 9 simulated bad or good model replies correctly. Playbook retrieval put the right passage first on 14 of 14 development questions and 4 of 6 held-out questions.
+- In the fairness example, a cafe with a $6 average sale and a bookstore with $24 come out at $132 and $240 over two months, 45% apart. The calculator suggests 17% for the bookstore. This is a unit test.
+- Live Gemini drafts took about 1.1 seconds. In a run of 15 quick calls, 7 hit the free-tier limit (HTTP 429) and fell back to the built-in draft, and 8 worked. One draft in the browser timed out at our 15 second limit and we couldn't repeat it.
+- All 479 tests pass, and none of them call the network.
 
-## Feasibility and open risks
+## What worries us
 
-- The free Gemini quota is tight. The fallback covers it, but a live demo should not make many calls in a row.
-- Live text can disagree with the checked numbers. We check fields and numbers, not meaning.
-- Radar's OpenStreetMap request has not been made for real yet. Tests patch it.
-- A hosted deployment may block the outbound call; we need to check the allowlist on PythonAnywhere.
+- Gemini's free quota is small. We keep live demos to a few calls, and the fallback covers us when we hit the limit.
+- We check the fields and numbers in the model's text, not its meaning, so a live draft can still say something that disagrees with them.
+- The Radar map loads from OpenStreetMap on our laptops, but our tests fake the nearby-places lookup, and we haven't tried either from a hosted site, where an outbound allowlist could block them.
