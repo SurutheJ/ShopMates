@@ -5,7 +5,7 @@ from django.urls import reverse
 from .helpers import DealTestCase
 
 
-@override_settings(LLM_API_KEY='')
+@override_settings(AI_API_KEY='')
 class AiDraftViewTests(DealTestCase):
     def setUp(self):
         super().setUp()

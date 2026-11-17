@@ -13,6 +13,7 @@ from django.http import JsonResponse
 
 from accounts.access import api_login_required, get_membership
 from accounts.models import ShopMembership
+from shopmates_project.timeutil import local_iso
 
 from . import services
 from .models import Deal, Redemption
@@ -41,7 +42,7 @@ def api_deals(request):
     if error:
         return error
     shop = membership.shop
-    deals = list(Deal.objects.filter(Q(proposer=shop) | Q(recipient=shop))
+    deals = list(Deal.visible_to(shop)
                  .select_related('proposer', 'recipient').order_by('-updated_at'))
     services.sync_all(deals)
     results = []
@@ -77,6 +78,6 @@ def api_deal_redemptions(request, pk):
         'id': r.pk,
         'referred_by': r.voucher.referring_shop.name,
         'honored_at': r.voucher.honoring_shop.name,
-        'confirmed_at': r.confirmed_at.isoformat(),
+        'confirmed_at': local_iso(r.confirmed_at),
     } for r in rows]
     return JsonResponse({'deal_id': deal.pk, 'count': len(results), 'results': results})

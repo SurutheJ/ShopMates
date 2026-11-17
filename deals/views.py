@@ -1,5 +1,7 @@
 import csv
-from datetime import timedelta
+import io
+from datetime import date, timedelta
+from decimal import Decimal
 
 import segno
 from django.conf import settings
@@ -10,13 +12,17 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 
 from accounts.access import approved_shop_required, owner_required, shop_required
 from accounts.models import Shop, ShopMembership
-from ai.services import draft_deal
+from ai.services import answer_playbook, draft_deal, explain_balance, suggest_renewal
+from shopmates_project.links import absolute_url
+from shopmates_project.timeutil import local_iso
 
-from . import services, throttle
+from . import charts, services, throttle
+from .fairness import fairness
 from .forms import DealTermsForm, MessageForm, RedeemForm
 from .models import Deal, DealMessage, Redemption, Voucher
 from .services import DealError, RedeemError
@@ -59,13 +65,15 @@ def _terms_initial(version=None):
 
 
 def _qr_svg(url):
-    return mark_safe(segno.make(url, error='m').svg_inline(scale=5, border=2))
+    # Black on white with the full 4-module quiet zone scanners expect. CSS sets the size.
+    return mark_safe(segno.make(url, error='q').svg_inline(
+        scale=1, border=4, dark='#000', light='#fff', omitsize=True))
 
 
 def _qr_context(request, deal, shop):
     if deal.status not in (S.ACCEPTED, S.ACTIVE):
         return {}
-    url = request.build_absolute_uri(reverse('deals:voucher_start', args=[deal.token_for(shop)]))
+    url = absolute_url(request, reverse('deals:voucher_start', args=[deal.token_for(shop)]))
     return {'qr_url': url, 'qr_svg': _qr_svg(url)}
 
 
@@ -78,17 +86,28 @@ def inbox(request):
     shop = request.shop
     is_owner = request.membership.role == ShopMembership.Role.OWNER
     context = {'is_owner': is_owner}
-    if is_owner and shop.is_approved:
-        deals = list(Deal.objects.filter(Q(proposer=shop) | Q(recipient=shop))
-                     .select_related('proposer', 'recipient', 'turn'))
+    if shop.is_approved:
+        deals = list(Deal.visible_to(shop)
+                     .select_related('proposer', 'recipient', 'turn')
+                     .prefetch_related('versions'))
         services.sync_all(deals)
         for deal in deals:
             deal.partner = deal.partner_of(shop)
             deal.version = deal.current_version
+        if not is_owner:
+            # Staff can see what is pending but cannot act on it; only the owner approves.
+            context['pending'] = [d for d in deals if d.status in Deal.OPEN_NEGOTIATION]
+            return render(request, 'deals/inbox.html', context)
+        needs_response = [d for d in deals if d.status in Deal.OPEN_NEGOTIATION and d.turn_id == shop.pk]
+        waiting = [d for d in deals if d.status in Deal.OPEN_NEGOTIATION and d.turn_id != shop.pk]
+        drafts = [d for d in deals if d.status == S.DRAFT]
         context.update({
-            'needs_response': [d for d in deals if d.status in Deal.OPEN_NEGOTIATION and d.turn_id == shop.pk],
-            'waiting': [d for d in deals if d.status in Deal.OPEN_NEGOTIATION and d.turn_id != shop.pk],
-            'drafts': [d for d in deals if d.status == S.DRAFT],
+            'sent_this_month': services.customers_sent_this_month(shop),
+            'selected': needs_response[0] if needs_response else None,   # shown in the preview pane on wide screens
+            'needs_response': needs_response,
+            'waiting': waiting,
+            'drafts': drafts,
+            'waiting_total': len(waiting) + len(drafts),
             'running': [d for d in deals if d.status in (S.ACCEPTED, S.ACTIVE)],
             'past': [d for d in deals if d.status in Deal.CLOSED],
         })
@@ -99,12 +118,35 @@ def inbox(request):
 # Proposals and negotiation
 # ---------------------------------------------------------------------------
 
+def _renewable_deal(request, recipient):
+    """The completed deal named by ?renew=<id>, if this shop was in it with `recipient`. Otherwise None."""
+    pk = request.GET.get('renew', '')
+    if not pk.isdigit():
+        return None
+    deal = Deal.objects.filter(pk=pk, status=S.COMPLETED).first()
+    if deal and deal.is_party(request.shop) and deal.partner_of(request.shop).pk == recipient.pk:
+        return deal
+    return None
+
+
+def _spend_note(mine, theirs):
+    """One sentence for the wizard when the two shops' typical spends differ by 40% or more (the app's lopsided threshold), else ''."""
+    a, b = mine.typical_order_value, theirs.typical_order_value
+    if abs(a - b) / max(a, b) < 0.4:
+        return ''
+    if b > a:
+        return 'Their customers spend more than yours, so equal discounts cost them more.'
+    return 'Your customers spend more than theirs, so equal discounts cost you more.'
+
+
 @owner_required
 def deal_new(request, shop_pk):
     recipient = get_object_or_404(Shop, pk=shop_pk, status=Shop.Status.APPROVED)
     if recipient.pk == request.shop.pk:
         raise Http404('Pick a different shop')
-    form = DealTermsForm(request.POST or None, initial=_terms_initial())
+    old = _renewable_deal(request, recipient)
+    initial = services.renewal_terms(old) if old else _terms_initial()
+    form = DealTermsForm(request.POST or None, initial=initial)
     if request.method == 'POST' and form.is_valid():
         send = request.POST.get('action') == 'send'
         try:
@@ -118,8 +160,43 @@ def deal_new(request, shop_pk):
             messages.success(request, 'Proposal sent.' if send else 'Draft saved.')
             return redirect(deal)
     return render(request, 'deals/deal_form.html', {
-        'form': form, 'recipient': recipient, 'mode': 'new',
-        'message': request.POST.get('message', ''),
+        'form': form, 'recipient': recipient, 'mode': 'new', 'renewing': old,
+        'message': request.POST.get('message', ''), 'spend_note': _spend_note(request.shop, recipient),
+    })
+
+
+@owner_required
+def deal_edit(request, pk):
+    """Edit a draft before sending it. Only the proposing shop can even see this page."""
+    deal = get_object_or_404(Deal.objects.select_related('proposer', 'recipient'), pk=pk, proposer=request.shop)
+    if deal.status != S.DRAFT:
+        messages.error(request, 'Only a draft can be edited.')
+        return redirect(deal)
+    note = deal.messages.filter(shop=request.shop).order_by('id').first()
+    form = DealTermsForm(request.POST or None, initial=_terms_initial(deal.current_version))
+    if request.method == 'POST' and form.is_valid():
+        send = request.POST.get('action') == 'send'
+        try:
+            services.edit_draft(deal, request.user, form.cleaned_data)
+            if send:
+                services.send_proposal(deal, request.user)
+        except DealError as exc:
+            messages.error(request, str(exc))
+        else:
+            text = request.POST.get('message', '').strip()[:1000]
+            if text and note:
+                note.body = text
+                note.save()
+            elif text:
+                DealMessage.objects.create(deal=deal, author=request.user, shop=request.shop, body=text)
+            elif note:
+                note.delete()
+            messages.success(request, 'Proposal sent.' if send else 'Draft saved.')
+            return redirect(deal)
+    shown = request.POST.get('message') if request.method == 'POST' else (note.body if note else '')
+    return render(request, 'deals/deal_form.html', {
+        'form': form, 'recipient': deal.recipient, 'deal': deal, 'mode': 'edit', 'message': shown,
+        'spend_note': _spend_note(request.shop, deal.recipient),
     })
 
 
@@ -139,12 +216,75 @@ def deal_detail(request, pk):
         'partner': deal.partner_of(shop),
         'my_turn': my_turn,
         'can_send': deal.status == S.DRAFT and deal.proposer_id == shop.pk,
+        'can_edit': deal.status == S.DRAFT and deal.proposer_id == shop.pk,
         'can_withdraw': deal.proposer_id == shop.pk and deal.status in (S.DRAFT, S.PROPOSED, S.COUNTERED),
+        'can_renew': deal.status == S.COMPLETED and not Deal.objects.filter(
+            status__in=Deal.LIVE, proposer__in=[deal.proposer, deal.recipient],
+            recipient__in=[deal.proposer, deal.recipient]).exists(),
         'can_message': deal.status in Deal.LIVE,
         'is_proposer': deal.proposer_id == shop.pk,
     }
     context.update(_qr_context(request, deal, shop))
     return render(request, 'deals/deal_detail.html', context)
+
+
+@owner_required
+def deal_qr(request, pk):
+    """The shop's own QR code, big, for showing on a phone or printing. Only while the deal can issue codes."""
+    deal = _party_deal_or_404(request, pk)
+    context = _qr_context(request, deal, request.shop)
+    if not context:
+        messages.error(request, 'The QR code is available once a deal is accepted, until it ends.')
+        return redirect(deal)
+    context.update({'deal': deal, 'version': deal.current_version, 'partner': deal.partner_of(request.shop)})
+    return render(request, 'deals/qr.html', context)
+
+
+@owner_required
+def deal_card(request, pk):
+    """A printable counter card (two copies per Letter page) with this shop's QR code and the deal terms."""
+    deal = _party_deal_or_404(request, pk)
+    context = _qr_context(request, deal, request.shop)
+    if not context:
+        messages.error(request, 'The counter card is available once a deal is accepted, until it ends.')
+        return redirect(deal)
+    context.update({
+        'deal': deal, 'version': deal.current_version, 'partner': deal.partner_of(request.shop),
+        'link_text': context['qr_url'].split('://', 1)[-1], 'ttl_hours': settings.VOUCHER_TTL_HOURS,
+    })
+    return render(request, 'deals/card.html', context)
+
+
+QR_PNG_MIN_PX = 1200   # 4 inches at 300 dpi
+
+
+def qr_png_scale(code):
+    """The smallest whole-number scale that makes the PNG at least QR_PNG_MIN_PX wide. Whole numbers keep the squares sharp."""
+    modules = code.symbol_size(border=4)[0]
+    return -(-QR_PNG_MIN_PX // modules)
+
+
+# SVG and PDF are vector (sharp at any size, best for printing). PDF scale 10 makes a page about 6 inches square.
+QR_FILES = {'png': 'image/png', 'svg': 'image/svg+xml', 'pdf': 'application/pdf'}
+
+
+@owner_required
+def deal_qr_file(request, pk, kind):
+    """The shop's QR code as a PNG, SVG or PDF download, same rules as the QR page."""
+    deal = _party_deal_or_404(request, pk)
+    context = _qr_context(request, deal, request.shop)
+    if not context:
+        messages.error(request, 'The QR code is available once a deal is accepted, until it ends.')
+        return redirect(deal)
+    code = segno.make(context['qr_url'], error='q')
+    options = {'png': {'scale': qr_png_scale(code)},
+               'svg': {'scale': 10, 'xmldecl': True, 'title': f'{request.shop.name} QR code'},
+               'pdf': {'scale': 10}}[kind]
+    buffer = io.BytesIO()
+    code.save(buffer, kind=kind, border=4, dark='#000', light='#fff', **options)
+    response = HttpResponse(buffer.getvalue(), content_type=QR_FILES[kind])
+    response['Content-Disposition'] = f'attachment; filename="shopmates-{slugify(request.shop.name)}-qr.{kind}"'
+    return response
 
 
 @owner_required
@@ -199,15 +339,53 @@ def deal_message(request, pk):
                                    body=form.cleaned_data['body'])
     else:
         messages.error(request, 'Write a message first.')
-    return redirect(deal)
+    return redirect(deal.get_absolute_url() + '?tab=chat')   # stay on the Chat tab
 
 
 @owner_required
 def deal_summary(request, pk):
     deal = _party_deal_or_404(request, pk)
-    context = {'deal': deal, 'summary': services.summary(deal)}
+    summary = services.summary(deal)
+    context = {
+        'deal': deal, 'summary': summary,
+        'renewal': suggest_renewal(summary),
+        'chart_svg': charts.redemptions_chart(deal),
+    }
     context.update(_qr_context(request, deal, request.shop))
     return render(request, 'deals/deal_summary.html', context)
+
+
+@owner_required
+@require_POST
+def deal_coach(request, pk):
+    """AI explanation of a deal's balance. Numbers come from the database; the model only words them."""
+    deal = _party_deal_or_404(request, pk)
+    if not throttle.allow(f'ai-coach:{request.user.pk}', settings.AI_DRAFT_LIMIT_PER_HOUR):
+        return JsonResponse({'error': 'Too many AI requests. Try again later.'}, status=429)
+    result = explain_balance(services.summary(deal))
+    result.pop('facts', None)
+    return JsonResponse(result)
+
+
+# ---------------------------------------------------------------------------
+# Playbook (retrieval-augmented Q&A)
+# ---------------------------------------------------------------------------
+
+@owner_required
+def playbook_page(request):
+    question = request.GET.get('q', '').strip()
+    result = None
+    if question:
+        if throttle.allow(f'ai-playbook:{request.user.pk}', settings.AI_DRAFT_LIMIT_PER_HOUR):
+            result = answer_playbook(question)
+        else:
+            messages.error(request, 'Too many AI requests. Try again later.')
+    return render(request, 'deals/playbook.html', {
+        'question': question, 'result': result,
+        'examples': ['What deal should a bakery offer a flower shop?',
+                     'Our deal feels unfair, what can we change?',
+                     'How do I pick a redemption cap?'],
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -227,6 +405,41 @@ def ai_draft(request):
 
 
 # ---------------------------------------------------------------------------
+# Fairness estimate (plain math in fairness.py, no AI)
+# ---------------------------------------------------------------------------
+
+ASSUMED_MARGIN = Decimal('50')
+
+
+@owner_required
+@require_POST
+def fairness_preview(request, partner_id):
+    """What each shop is estimated to earn from the terms in the wizard: this shop (a) against the partner (b)."""
+    partner = get_object_or_404(Shop, pk=partner_id, status=Shop.Status.APPROVED)
+    if partner.pk == request.shop.pk:
+        raise Http404('Pick a different shop')
+    try:
+        mine = int(request.POST.get('discount_percent', ''))
+        theirs = int(request.POST.get('partner_discount_percent', mine))
+        cap = int(request.POST.get('cap', ''))
+        days = (date.fromisoformat(request.POST.get('end_date', ''))
+                - date.fromisoformat(request.POST.get('start_date', ''))).days
+    except ValueError:
+        return JsonResponse({'error': 'Enter whole numbers and valid dates.'}, status=400)
+    if not (1 <= mine <= 100 and 1 <= theirs <= 100 and cap >= 1 and days >= 0):
+        return JsonResponse({'error': 'Discounts are 1 to 100, the cap at least 1, and the end date on or after the start.'},
+                            status=400)
+
+    def side(shop, discount):
+        return {'name': shop.name, 'ticket': shop.typical_order_value, 'margin_pct': ASSUMED_MARGIN if shop.margin_pct is None else shop.margin_pct,
+                'discount_percent': discount, 'cap': cap}
+
+    result = fairness(side(request.shop, mine), side(partner, theirs), months=max(1, round(days / 30)))
+    result['margin_assumed'] = request.shop.margin_pct is None or partner.margin_pct is None
+    return JsonResponse(result)
+
+
+# ---------------------------------------------------------------------------
 # Exports (parties to the deal only)
 # ---------------------------------------------------------------------------
 
@@ -239,7 +452,7 @@ def _redemption_rows(deal):
         'deal_id': deal.pk,
         'referred_by': r.voucher.referring_shop.name,
         'honored_at': r.voucher.honoring_shop.name,
-        'confirmed_at': r.confirmed_at.isoformat(),
+        'confirmed_at': local_iso(r.confirmed_at),
         'confirmed_by': r.confirmed_by.username if r.confirmed_by else '',
     } for r in redemptions]
 
@@ -266,7 +479,7 @@ def export_json(request, pk):
     rows = _redemption_rows(deal)
     summary = services.summary(deal)
     response = JsonResponse({
-        'generated_at': timezone.now().isoformat(),
+        'generated_at': local_iso(timezone.now()),
         'record_count': len(rows),
         'deal': {
             'id': deal.pk,
@@ -338,6 +551,14 @@ def voucher_show(request, code):
 
 @approved_shop_required
 def redeem(request):
+    recent = (Redemption.objects.filter(voucher__honoring_shop=request.shop)
+              .select_related('voucher__referring_shop')[:10])
+    # Limit by user, not IP: this page needs a login, and behind a proxy many
+    # shops can share one IP address.
+    if request.method == 'POST' and not throttle.allow(
+            f'redeem:{request.user.pk}', settings.REDEEM_LIMIT_PER_HOUR):
+        messages.error(request, 'Too many attempts. Try again in an hour.')
+        return render(request, 'deals/redeem.html', {'form': RedeemForm(), 'recent': recent}, status=429)
     form = RedeemForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         try:
@@ -350,8 +571,6 @@ def redeem(request):
                 request,
                 f'Confirmed. Give the customer their offer: {v.offer_text} ({v.discount_percent}% off).')
         return redirect('deals:redeem')
-    recent = (Redemption.objects.filter(voucher__honoring_shop=request.shop)
-              .select_related('voucher__referring_shop')[:10])
     return render(request, 'deals/redeem.html', {'form': form, 'recent': recent})
 
 

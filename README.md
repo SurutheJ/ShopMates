@@ -1,99 +1,143 @@
-# Shopmates
+# ShopMates
 
-**Neighboring shops promote each other.**
+Neighboring shops promote each other.
 
-Shopmates is a Django web app that helps independent shops near each other turn informal cross-promotions into agreed, trackable deals.
+ShopMates is a Django web app for independent shops that want to cross-promote with the shop next door. One shop proposes a deal ("10% off a coffee with a bookstore receipt"), the neighbor accepts, counters or declines, and once it is active customers redeem it with a QR code that staff confirm on a phone. Both shops can see how many customers each one sent the other, and the app points out when a deal is lopsided.
 
-A shop proposes a deal to a neighbor, for example "10% off a coffee with a bookstore receipt". The neighbor accepts, counters or declines. Once the deal is active, customers redeem it with a QR code that staff confirm on a phone. Both shops see how many customers each one sent the other, and the app suggests a fair renewal when the exchange is lopsided.
+Team 22: Suruthe Jayachandran and Sahithi Madabhushi, equal contributors on the whole project.
 
-> **Status: working MVP, not deployed.** The core app is built and covered by 94 automated tests: shops and approval, discovery, negotiation, QR vouchers, staff redemption, summary and exports, APIs, and AI drafting with a fallback. It has been run locally in a browser. It has **not** been deployed, and Google sign-in, the live LLM call and phone QR scanning have **not** been tested yet. See [docs/DECISIONS.md](docs/DECISIONS.md) for the list.
+## What's built
 
-## Why this exists
+**Product and user experience**
+- Shop setup, an inbox of waiting actions, Discover, a four-step proposal form, deal pages with history and chat
+- Owner and staff roles with a navigation that changes to match
+- Clear feedback on every form, plus a QR card shops can download as PNG, SVG or PDF
 
-Small shops share foot traffic with the shops next door but have no ad budget. Neighbors already cooperate informally (a flyer at the counter, "show their receipt, get a discount"), and these arrangements break down because:
+**Django application**
+- Models for shops, memberships, deals, deal versions, messages, events, vouchers and redemptions, with migrations
+- Negotiation: accept, counter or decline, with a version history
+- Redemption by QR code and staff confirmation, with cap, date and duplicate checks
+- Google sign-in, login and logout, protected pages and per-shop access checks
+- Search and filters on Discover, a deal summary with charts, CSV and JSON export, a public stats API and two private APIs
 
-1. There is no shared record of the agreed terms.
-2. Redemptions can't be verified without trusting the other shop's count.
-3. Nobody can tell whether the deal is fair, so resentful deals quietly lapse.
+**AI**
+- Partner match score and Deal Radar (a map of nearby shops, ranked)
+- Fairness calculator on the proposal form
+- AI deal draft, deal coach and playbook Q&A, each checked in Python and each with a built-in fallback
 
-Shopmates makes the agreement explicit, the redemptions verifiable, and the fairness visible.
+**Evaluation and testing**
+- 516 automated tests and a GitHub Actions workflow
+- `evaluate_ai` report with retrieval and guardrail results, failure analysis and measured improvements
+- Query counts and a load test
 
-## Who uses it
+**Production readiness**
+- Separate dev and prod settings, secrets in `.env`, rate limits, a security policy for browsers, logging, a health check and a database backup command
+- Cost comparison and scaling notes in `docs/PRODUCTION.md`
 
-| User | What they do | Account |
-|---|---|---|
-| Shop owner | Sets up the shop, proposes and negotiates deals, reads results | Google sign-in |
-| Staff member | Confirms redemptions on a phone, nothing else | Invited by an owner |
-| Customer | Opens a QR link and shows a one-time code | None |
-| Admin | Approves new shops, moderates | Django admin |
+**Documentation**
+- This README, `README_AI.md` and the files in `docs/`
 
-## Core flow
+Still to come: hosting, a negotiation copilot, a terms checker and notifications. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
-```
-draft -> proposed -> accepted -> active -> completed
-            |  ^
-            v  |
-         countered          (any open deal can end as declined or expired)
-```
+## Why it is different
 
-The home screen for an owner is an **inbox of actions waiting on them** (proposals to answer, counters, deals ending soon), not a dashboard. Charts exist, but as a secondary view.
+QR cross-promotion tools exist. ShopMates focuses on the agreement between two shops:
 
-## Features
+1. Negotiated terms with caps, dates and an audit trail, not a one-way coupon.
+2. A redemption can only be confirmed once. This is enforced by a database constraint, not just the page.
+3. Fairness is measured in dollars. Equal customer counts can still be unfair when one shop's average sale is $24 and the other's is $6.
+4. Every number shown comes from Python. The language model only words things, and its output is checked.
 
-**Built (MVP)**
-- Google sign-in, shop profile, admin approval of new shops
-- Discover shops by category and name, nearest first when both shops have coordinates entered
-- Deal proposals with offer text, dates, a redemption cap and terms
-- Negotiation: accept, counter-offer (new version of the terms) or decline, with history
-- QR vouchers and a staff redeem page with cap, date and duplicate checks
-- Deal summary: customers sent vs received, fairness view, renewal suggestion, CSV and JSON export
-- Public API of anonymized aggregate statistics, protected APIs for each shop's private data
-- AI assistant: drafts proposal wording, suggests balanced counters, explains fairness in plain English
+## Install and run
 
-**Not built yet**
-- Automatic address lookup (geocoding), email notifications, multi-location shops, bundled "passport" deals
-
-**Deliberately out of scope**
-- Payments, customer accounts, automatic shop matching
-
-## Tech stack
-
-- Django (monolith), SQLite for the prototype
-- django-allauth with Google OAuth
-- A hosted LLM API called only from server-side Django code (Gemini request shape written but unverified; no key means a rule-based fallback)
-- Hosting: PythonAnywhere free tier (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md))
-
-## Documentation
-
-| File | What's in it |
-|---|---|
-| [docs/DECISIONS.md](docs/DECISIONS.md) | Decisions made, open decisions, risks, unverified claims |
-| [docs/PRODUCT.md](docs/PRODUCT.md) | Users, screens, deal lifecycle, rules, phases |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Monolith layout, data model draft, APIs, security |
-| [docs/AI.md](docs/AI.md) | How the LLM is used, guardrails, validation, fallback |
-| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Setup, run, test, demo data, project layout, known limits |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Settings split, `.env`, PythonAnywhere, Google OAuth |
-| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | Assignment deliverables checklist (to fill in) |
-| [docs/BRANCHING.md](docs/BRANCHING.md) | Git workflow and commit rules |
-| [CLAUDE.md](CLAUDE.md) | Instructions for AI coding sessions working in this repo |
-
-## Team
-
-Suruthe Jayachandran, Sahithi Madabhushi. All team members are considered equal contributors.
-Team name and number: **TODO**.
-
-## Getting started
+You need Python 3.12 or newer.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-cp .env.example .env          # then set SECRET_KEY in .env
-.venv/bin/python manage.py migrate
-.venv/bin/python manage.py seed_demo
-.venv/bin/python manage.py runserver
-.venv/bin/python manage.py test
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env        # then set SECRET_KEY (see below)
+python manage.py migrate
+python manage.py createcachetable
+python manage.py seed_showcase    # demo shops, deals and redemptions (resets the dev database)
+python manage.py runserver        # http://localhost:8000
 ```
 
-Full details, demo accounts and known limits are in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+Generate a secret key for `.env`:
 
-Never commit `.env`. Copy `.env.example` to `.env` and fill in your own values.
+```bash
+python -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
+```
+
+Use `localhost`, not `127.0.0.1`, especially for Google sign-in.
+
+Demo logins (password `shopmates-demo-1`): `demo_cafe` (owner), `demo_books`, `demo_bakery`, `demo_flowers`, `demo_fit`, `demo_coffee2`, `demo_salon`, `demo_resto`, and `demo_staff` (staff at the bookstore).
+
+## Environment variables
+
+Set these in `.env`. Never commit it. `.env.example` lists them all.
+
+| Variable | What it does |
+|---|---|
+| `SECRET_KEY` | Django signing key. Required. |
+| `DEBUG` | `True` for local work only. |
+| `ALLOWED_HOSTS` | Comma-separated host names. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google sign-in. Leave empty to hide the button. |
+| `AI_API_KEY` | Gemini key. Leave empty and every AI feature uses its built-in fallback. |
+| `AI_API_MODEL`, `AI_API_BASE_URL` | Model and endpoint. Defaults are in `.env.example`. |
+| `RADAR_OSM_ENABLED` | `False` stops Deal Radar from looking up nearby places on OpenStreetMap. |
+
+## Using the AI features
+
+Sign in as `demo_cafe` after seeding.
+
+| Feature | Where |
+|---|---|
+| Partner match score | Discover |
+| Deal Radar (map of nearby shops, ranked) | Radar |
+| Fairness calculator | Propose a deal, step 4 ("Is it balanced?") |
+| Draft with AI | Propose a deal |
+| Explain this deal (coach) | Deal page, summary |
+| Playbook Q&A | Playbook |
+
+Without `AI_API_KEY` these still work and say they are using the built-in version. Details: [README_AI.md](README_AI.md).
+
+## Tests
+
+```bash
+python manage.py check
+python manage.py test
+python manage.py evaluate_ai     # reproduces the numbers in docs/EVALUATION.md
+```
+
+## Project layout
+
+```
+shopmates_project/   settings (base, dev, prod), urls
+accounts/            users, shops, staff, discover, radar page
+deals/               deals, versions, vouchers, redemptions, fairness, APIs, exports
+ai/                  client.py (the only code that calls the model), prompts, services, radar, matching
+templates/, static/  pages and styles
+designv2/            design mockups the UI was built from
+scripts/             layout and tap-target checks, load test
+docs/                product, architecture, evaluation, deployment
+```
+
+## Docs
+
+| File | Contents |
+|---|---|
+| [docs/UPDATED_PRODUCT_SCOPE.md](docs/UPDATED_PRODUCT_SCOPE.md) | Product scope update since the proposal |
+| [README_AI.md](README_AI.md) | AI models, workflow, limits |
+| [docs/INITIAL_AI_IMPLEMENTATION.md](docs/INITIAL_AI_IMPLEMENTATION.md) | What the AI work covers so far |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Status and remaining tasks to Dec 8 |
+| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | First-draft checklist with evidence |
+| [docs/PRODUCT.md](docs/PRODUCT.md) | Users, screens, deal lifecycle, rules |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Data model, APIs, security |
+| [docs/EVALUATION.md](docs/EVALUATION.md) | Tests, failures, improvements |
+| [docs/PRODUCTION.md](docs/PRODUCTION.md) | Resources, cost, scaling, security |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Settings and PythonAnywhere steps |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Setup details and known limits |
+| [docs/DECISIONS.md](docs/DECISIONS.md) | Decisions, open questions, unverified items |
+| [docs/STAGE3-REPORT.md](docs/STAGE3-REPORT.md), [docs/STAGE4-REPORT.md](docs/STAGE4-REPORT.md) | Restyle reports: files changed and results per stage |
+| [docs/BRANCHING.md](docs/BRANCHING.md) | Git workflow |

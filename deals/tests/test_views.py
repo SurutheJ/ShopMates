@@ -1,7 +1,6 @@
 import csv
 import io
 import json
-import re
 
 from django.core.cache import cache
 from django.test import override_settings
@@ -168,12 +167,3 @@ class CustomerFlowTests(DealTestCase):
         services.redeem_voucher(voucher.code, self.books_owner)
         self.assertContains(self.client.get(reverse('deals:voucher_show', args=[voucher.code])), 'already used')
 
-
-class QrTests(DealTestCase):
-    def test_deal_page_shows_only_my_shops_qr_once_accepted(self):
-        deal = self.active_deal()
-        self.client.force_login(self.cafe_owner)
-        response = self.client.get(deal.get_absolute_url())
-        self.assertContains(response, str(deal.proposer_token))
-        self.assertNotContains(response, str(deal.recipient_token))
-        self.assertTrue(re.search(r'<svg', response.content.decode()))

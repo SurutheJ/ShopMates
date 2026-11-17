@@ -5,55 +5,72 @@ Swapping providers means changing this file. Tests replace the client with a
 fake. The API key is read from settings (which read .env) and is only ever
 sent from the server, never to the browser.
 
-UNVERIFIED: the request shape below follows Google's Gemini REST API as I know
-it. It has not been run against the live service from this project. Test it
-with a real key before relying on it.
+It speaks the "OpenAI-style" chat completions shape (POST <base URL>/chat/completions
+with a Bearer key). Google serves that shape for Gemini at
+https://generativelanguage.googleapis.com/v1beta/openai/, so the provider is
+chosen by AI_API_BASE_URL and AI_API_MODEL in .env.
+
+UNVERIFIED: not yet run against the live service from this project.
 """
 
 import json
+import logging
 
 import requests
 from django.conf import settings
 
 
+logger = logging.getLogger('ai')
+
+
 class AIError(Exception):
-    """The model call failed or returned something unusable."""
+    """The model call failed or returned something unusable. The text is safe to show to a user."""
 
 
 class GeminiClient:
-    base_url = 'https://generativelanguage.googleapis.com/v1beta/models'
-
-    def __init__(self, api_key, model, timeout=15):
+    def __init__(self, api_key, model, base_url, timeout=15):
         self.api_key = api_key
         self.model = model
+        self.base_url = base_url
         self.timeout = timeout
 
     def generate_json(self, prompt):
         """Send a prompt, return the parsed JSON object the model produced."""
         try:
             response = requests.post(
-                f'{self.base_url}/{self.model}:generateContent',
-                headers={'x-goog-api-key': self.api_key, 'Content-Type': 'application/json'},
+                f'{self.base_url.rstrip("/")}/chat/completions',
+                headers={'Authorization': f'Bearer {self.api_key}', 'Content-Type': 'application/json'},
                 json={
-                    'contents': [{'parts': [{'text': prompt}]}],
-                    'generationConfig': {'responseMimeType': 'application/json', 'temperature': 0.4},
+                    'model': self.model,
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'response_format': {'type': 'json_object'},
+                    'temperature': 0.4,
                 },
                 timeout=self.timeout,
             )
             response.raise_for_status()
-            text = response.json()['candidates'][0]['content']['parts'][0]['text']
+            text = response.json()['choices'][0]['message']['content']
             data = json.loads(text)
         except requests.RequestException as exc:
-            raise AIError(f'The AI service could not be reached ({type(exc).__name__}).') from exc
+            status = getattr(exc.response, 'status_code', None)
+            logger.warning('AI call failed: %s, HTTP status %s', type(exc).__name__, status)
+            if status == 429:
+                raise AIError('The AI is busy right now.') from exc
+            if isinstance(exc, requests.Timeout):
+                raise AIError('The AI took too long to answer.') from exc
+            raise AIError('The AI is not available right now.') from exc
         except (KeyError, IndexError, TypeError, ValueError) as exc:
-            raise AIError('The AI service returned an unexpected response.') from exc
+            logger.warning('AI call failed: unexpected response (%s)', type(exc).__name__)
+            raise AIError('The AI gave an answer the app could not use.') from exc
         if not isinstance(data, dict):
-            raise AIError('The AI service did not return a JSON object.')
+            logger.warning('AI call failed: unexpected response (not a JSON object)')
+            raise AIError('The AI gave an answer the app could not use.')
         return data
 
 
 def default_client():
     """A real client if a key is configured, otherwise None (the app uses its fallback)."""
-    if not settings.LLM_API_KEY:
+    if not settings.AI_API_KEY:
         return None
-    return GeminiClient(settings.LLM_API_KEY, settings.LLM_MODEL, settings.LLM_TIMEOUT_SECONDS)
+    return GeminiClient(settings.AI_API_KEY, settings.AI_API_MODEL, settings.AI_API_BASE_URL,
+                        settings.AI_TIMEOUT_SECONDS)

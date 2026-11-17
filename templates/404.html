@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Page not found{% endblock %}
+
+{% block screen %}
+<section class="screen narrow active" id="s-404">
+  <div class="scroll mid">
+    <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-compass"/></svg></div>
+      <h1>Page not found</h1><p class="sm">That page does not exist, or the link is out of date.</p><a class="btn" href="{% url 'home' %}">Go home</a></div>
+  </div>
+</section>
+{% endblock %}

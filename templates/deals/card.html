@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Counter card for {{ my_shop.name }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/card.css' %}">{% endblock %}
+
+{% block screen %}
+<section class="screen active">
+  <div class="scroll card-page">
+    <div class="card-sheet">
+      {% include "deals/_counter_card.html" %}
+      <div class="cut copy">cut here</div>
+      {% include "deals/_counter_card.html" with copy=True %}
+    </div>
+  </div>
+  <div class="actionbar">
+    <a class="btn ghost" href="{% url 'deals:qr' deal.pk %}">&larr; Back</a>
+    <button class="btn" type="button" data-print>Print card</button>
+  </div>
+</section>
+{% endblock %}

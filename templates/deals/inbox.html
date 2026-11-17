@@ -2,52 +2,86 @@
 
 {% block title %}Inbox{% endblock %}
 
-{% block content %}
-  <div class="section-head">
-    <div>
-      <h1>{{ my_shop.name }}</h1>
-      <p class="muted">What needs your attention</p>
-    </div>
-    {% if is_owner and my_shop.is_approved %}<a class="btn" href="{% url 'accounts:discover' %}">Find a neighbor</a>{% endif %}
+{# Native design screen (designv2/shell-demo.html #s-inbox): head, three tabs, one scroll region, pinned action bar, preview pane from 1100px. #}
+{% block screen %}
+<section class="screen active" id="s-inbox">
+{% if not my_shop.is_approved %}
+  <div class="screen-head"><div><h1>{{ my_shop.name }}</h1><p class="muted sm">What needs your attention</p></div></div>
+  <div class="scroll">
+    <div class="banner" role="status">Your shop is {{ my_shop.get_status_display|lower }}. An admin will approve it before you can propose or redeem deals.</div>
   </div>
 
-  {% if not my_shop.is_approved %}
-    <p class="notice">Your shop is {{ my_shop.get_status_display|lower }}. An admin will approve it before you can propose or redeem deals.</p>
-  {% elif not is_owner %}
+{% elif not is_owner %}
+  <div class="screen-head"><div><h1>{{ my_shop.name }}</h1><p class="muted sm">What needs your attention</p></div></div>
+  <div class="scroll">
     <div class="card"><h3>Confirm a customer</h3>
-      <p class="muted">When a customer shows a code, confirm it here.</p>
-      <a class="btn" href="{% url 'deals:redeem' %}">Open redeem page</a></div>
-  {% else %}
+      <p class="muted sm" style="margin:4px 0 12px">When a customer shows a code, confirm it here.</p>
+      <a class="btn block" href="{% url 'deals:redeem' %}">Open redeem page</a></div>
+    <h2>Pending deals {% if pending %}<span class="badge">{{ pending|length }}</span>{% endif %}</h2>
+    <p class="muted sm">Only the shop owner can approve, counter or decline a deal.</p>
+    {% for deal in pending %}{% include "deals/_deal_row.html" %}
+    {% empty %}<div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg></div><h2>No deals are waiting</h2></div>{% endfor %}
+  </div>
 
-    <section>
-      <h2>Waiting on you {% if needs_response %}<span class="count">{{ needs_response|length }}</span>{% endif %}</h2>
-      <div class="list">
+{% else %}
+  <div class="split{% if not selected %} solo{% endif %}">
+    <div class="list-pane">
+      <div class="screen-head"><div><h1>{{ my_shop.name }}</h1><p class="muted sm">What needs your attention</p></div></div>
+      <div class="seg" role="tablist" data-tabs>
+        <button role="tab" aria-selected="true" data-t="t1">Your turn · {{ needs_response|length }}</button>
+        <button role="tab" aria-selected="false" data-t="t2">Running · {{ running|length }}</button>
+        <button role="tab" aria-selected="false" data-t="t3">Waiting{% if waiting_total %} · {{ waiting_total }}{% endif %}</button>
+        {% if past %}<button role="tab" aria-selected="false" data-t="t4">Past · {{ past|length }}</button>{% endif %}
+      </div>
+
+      <div class="scroll" data-pane="t1">
+        <div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+          <div class="stat coral"><b>{{ needs_response|length }}</b><span>need your answer</span></div>
+          <div class="stat teal"><b>{{ sent_this_month }}</b><span>customers sent this month</span></div>
+        </div>
         {% for deal in needs_response %}{% include "deals/_deal_row.html" %}
-        {% empty %}<p class="muted pad">Nothing needs your answer.</p>{% endfor %}
+        {% empty %}<div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg></div><h2>Nothing needs your answer</h2><p class="sm">When a neighbor sends or counters a proposal, it shows up here.</p></div>{% endfor %}
       </div>
-    </section>
 
-    {% if drafts %}
-      <section><h2>Drafts</h2>
-        <div class="list">{% for deal in drafts %}{% include "deals/_deal_row.html" %}{% endfor %}</div></section>
-    {% endif %}
-
-    <section>
-      <h2>Running deals</h2>
-      <div class="list">
+      <div class="scroll" data-pane="t2" hidden>
         {% for deal in running %}{% include "deals/_deal_row.html" %}
-        {% empty %}<p class="muted pad">No deals running yet. <a href="{% url 'accounts:discover' %}">Find a neighbor</a> to propose one.</p>{% endfor %}
+        {% empty %}<div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg></div><h2>No deals running yet</h2><p class="sm">Find a neighbor and send your first proposal. It takes about a minute.</p></div>{% endfor %}
       </div>
-    </section>
 
-    {% if waiting %}
-      <section><h2>Waiting on them</h2>
-        <div class="list">{% for deal in waiting %}{% include "deals/_deal_row.html" %}{% endfor %}</div></section>
-    {% endif %}
+      <div class="scroll" data-pane="t3" hidden>
+        {% for deal in drafts %}{% include "deals/_deal_row.html" %}{% endfor %}
+        {% for deal in waiting %}{% include "deals/_deal_row.html" %}{% endfor %}
+        {% if not drafts and not waiting %}<div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg></div><h2>Nothing is waiting on a neighbor</h2><p class="sm">Proposals you have sent and drafts you have saved show up here.</p></div>{% endif %}
+      </div>
 
-    {% if past %}
-      <section><h2>Past deals</h2>
-        <div class="list">{% for deal in past %}{% include "deals/_deal_row.html" %}{% endfor %}</div></section>
+      {% if past %}
+      <div class="scroll" data-pane="t4" hidden>
+        {% for deal in past %}{% include "deals/_deal_row.html" %}{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="actionbar"><a class="btn block" href="{% url 'accounts:discover' %}">Find a neighbor</a></div>
+    </div>
+
+    {% if selected %}
+    <aside class="detail-pane" aria-label="Preview">
+      <div class="card"><h2>{{ selected.partner.name }}</h2>
+        <p class="muted sm">{{ selected.get_status_display }}{% if selected.response_deadline %} &middot; answer by {{ selected.response_deadline|date:"M j" }}{% endif %}</p>
+        <dl class="kv" style="margin-top:12px">
+          <dt>Offer</dt><dd>{{ selected.version.offer_text }}</dd>
+          <dt>Discount</dt><dd>{{ selected.version.discount_percent }}%</dd>
+          <dt>Cap per shop</dt><dd>{{ selected.version.redemption_cap }}</dd>
+          <dt>Dates</dt><dd>{{ selected.version.start_date|date:"M j" }} &ndash; {{ selected.version.end_date|date:"M j" }}</dd>
+        </dl>
+        <div class="actionbar" style="margin-top:12px">
+          <form method="post" action="{% url 'deals:action' selected.pk 'decline' %}">{% csrf_token %}<button class="btn danger" type="submit">Decline</button></form>
+          <a class="btn ghost" href="{% url 'deals:counter' selected.pk %}">Counter</a>
+          <form method="post" action="{% url 'deals:action' selected.pk 'accept' %}">{% csrf_token %}<button class="btn" type="submit">Accept</button></form>
+        </div>
+      </div>
+    </aside>
     {% endif %}
-  {% endif %}
+  </div>
+{% endif %}
+</section>
 {% endblock %}

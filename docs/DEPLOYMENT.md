@@ -1,6 +1,6 @@
 # Deployment and environment
 
-Lessons carried over from a previous Django project that was deployed on PythonAnywhere with Google OAuth. Each item was a real problem there. Re-verify them for this project.
+Notes from an earlier Django project deployed on PythonAnywhere with Google OAuth. Each item was a real problem there. ShopMates has not been deployed yet, so re-check each one.
 
 ## Settings
 
@@ -30,7 +30,7 @@ See `.env.example`. Never commit `.env`.
 | `DEBUG` | `True` locally only |
 | `ALLOWED_HOSTS` | Comma-separated hostnames |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google OAuth; leave empty to hide the button |
-| `LLM_API_KEY` | LLM provider key (name to be finalized) |
+| `AI_API_KEY`, `AI_API_MODEL`, `AI_API_BASE_URL` | LLM provider key, model and OpenAI-style base URL (defaults: `gemini-3.1-flash-lite`, Google's `v1beta/openai/`) |
 
 ## Google sign-in (django-allauth)
 

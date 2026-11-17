@@ -2,19 +2,76 @@
 
 {% block title %}{% if creating %}Set up your shop{% else %}My shop{% endif %}{% endblock %}
 
-{% block content %}
-  <div class="card card--medium">
-    <h1>{% if creating %}Set up your shop{% else %}My shop{% endif %}</h1>
-    {% if creating %}
-      <p class="muted">Tell neighbors who you are. You can change this later.</p>
-    {% else %}
-      <p class="muted">Status: <span class="badge badge--{{ my_shop.status }}">{{ my_shop.get_status_display }}</span>
-        &middot; <a href="{% url 'accounts:shop_staff' %}">Manage staff</a></p>
-    {% endif %}
-    <form method="post">
+{# designv2 "me" screen. Pitch and tags, notification switches, data export, delete account, AI usage and Terms are in the design but not built, so they say "coming soon". #}
+{% block screen %}
+{% if creating %}
+<section class="screen active narrow" id="s-setup">
+  <div><h1>Set up your shop</h1><p class="muted sm">Tell neighbors who you are. You can change this later.</p></div>
+  <div class="scroll">
+    <form method="post" id="shop-form">
       {% csrf_token %}
       {% include "partials/_form_fields.html" %}
-      <button class="btn" type="submit">{% if creating %}Create shop{% else %}Save changes{% endif %}</button>
     </form>
   </div>
+  <div class="actionbar"><button class="btn" type="submit" form="shop-form">Create shop</button></div>
+</section>
+{% else %}
+<section class="screen active narrow" id="s-me">
+  <div class="screen-head">
+    <div><h1>My shop</h1><p class="muted sm">{{ my_shop.name }} &middot; owner</p></div>
+    <span class="badge {% if my_shop.status == 'approved' %}ok{% elif my_shop.status == 'pending' %}warn{% else %}bad{% endif %}">{{ my_shop.get_status_display }}</span>
+  </div>
+  <div class="seg" role="tablist" data-tabs>
+    <button role="tab" aria-selected="true" data-t="a">Profile</button>
+    <button role="tab" aria-selected="false" data-t="b">Team</button>
+    <button role="tab" aria-selected="false" data-t="c">Account</button>
+  </div>
+
+  <div class="scroll" data-pane="a">
+    <div class="card">
+      <dl class="kv">
+        <dt>Category</dt><dd>{{ my_shop.get_category_display }}</dd>
+        <dt>Address</dt><dd>{{ my_shop.address }}, {{ my_shop.city }}</dd>
+        <dt>Hours</dt><dd>{{ my_shop.hours|default:"Not set" }}</dd>
+        <dt>Typical order</dt><dd>${{ my_shop.typical_order_value|floatformat:"-2" }}</dd>
+        <dt>Location</dt><dd>{% if my_shop.latitude is not None %}Set{% else %}Not set{% endif %}</dd>
+      </dl>
+      <p class="sm" style="margin-top:12px"><b>Pitch and tags.</b> Not added yet.</p>
+      <button class="btn ghost sm" type="button" data-soon="Pitch and tags" style="margin-top:8px">Add pitch and tags</button>
+    </div>
+    <button class="btn ghost block" type="button" data-sheet="sheet-edit">Edit profile</button>
+    <button class="row" type="button" data-soon="AI usage"><div class="grow"><h3>AI usage</h3><p class="muted sm">Latency, quality, cost</p></div><span class="badge">Soon</span></button>
+  </div>
+
+  <div class="scroll" data-pane="b" hidden>
+    {% for m in my_shop.memberships.all %}
+      <div class="row"><div class="avatar" aria-hidden="true">{{ m.user.username|slice:":2"|upper }}</div><div class="grow"><h3>{{ m.user.username }}</h3><p class="muted sm">{{ m.get_role_display }}</p></div></div>
+    {% endfor %}
+    <a class="btn block" href="{% url 'accounts:shop_staff' %}">Manage staff</a>
+  </div>
+
+  <div class="scroll" data-pane="c" hidden>
+    <button class="row" type="button" data-soon="Email notifications"><div class="grow">Email me about proposals</div><span class="badge">Soon</span></button>
+    <button class="row" type="button" data-soon="Email notifications"><div class="grow">Remind me before deals end</div><span class="badge">Soon</span></button>
+    <a class="row" href="{% url 'deals:stats' %}"><div class="grow">Stats</div></a>
+    <button class="row" type="button" data-soon="Terms and Privacy"><div class="grow">Terms and Privacy</div></button>
+    <button class="row" type="button" data-soon="Download my data"><div class="grow">Download my data</div></button>
+    <button class="btn danger block" type="button" data-soon="Delete account">Delete account</button>
+    <form method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button class="btn ghost block" type="submit">Log out</button></form>
+  </div>
+
+  <div class="sheet-backdrop{% if form.errors %} open{% endif %}" id="sheet-edit">
+    <div class="sheet">
+      <div class="screen-head"><h2>Edit profile</h2><button class="icon-btn" type="button" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+      <div class="scroll">
+        <form method="post" id="shop-form">
+          {% csrf_token %}
+          {% include "partials/_form_fields.html" %}
+        </form>
+      </div>
+      <div class="actionbar"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn" type="submit" form="shop-form">Save changes</button></div>
+    </div>
+  </div>
+</section>
+{% endif %}
 {% endblock %}

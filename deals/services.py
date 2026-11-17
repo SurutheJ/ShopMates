@@ -6,10 +6,11 @@ are easy to test. Views only translate HTTP to these functions.
 """
 
 import secrets
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 
 from django.conf import settings
 from django.db import IntegrityError, transaction
+from django.db.models import Count
 from django.utils import timezone
 
 from accounts.models import Shop, ShopMembership
@@ -106,6 +107,21 @@ def create_draft(proposer, recipient, user, terms, send=False):
 
 
 @transaction.atomic
+def edit_draft(deal, user, terms):
+    """Change a draft's terms in place. It was never sent, so it stays version 1."""
+    shop = _owner_shop(deal, user)
+    if deal.status != S.DRAFT or shop.pk != deal.proposer_id:
+        raise DealError('Only the proposer can edit a draft.')
+    version = deal.current_version
+    for field in ('offer_text', 'discount_percent', 'redemption_cap', 'start_date', 'end_date'):
+        setattr(version, field, terms[field])
+    version.terms = terms.get('terms', '')
+    version.save()
+    record(deal, user, 'edited')
+    return deal
+
+
+@transaction.atomic
 def send_proposal(deal, user):
     shop = _owner_shop(deal, user)
     if deal.status != S.DRAFT or shop.pk != deal.proposer_id:
@@ -183,8 +199,20 @@ def redemptions_at(deal, shop):
     return Redemption.objects.filter(voucher__deal=deal, voucher__honoring_shop=shop).count()
 
 
-def sync_status(deal, now=None):
-    """Apply time-based transitions: expire stale proposals, start and finish deals."""
+def _redemption_counts(deals):
+    """{(deal id, honoring shop id): redemptions} for many deals in one query."""
+    rows = (Redemption.objects.filter(voucher__deal__in=deals)
+            .values('voucher__deal', 'voucher__honoring_shop').annotate(n=Count('id')))
+    return {(r['voucher__deal'], r['voucher__honoring_shop']): r['n'] for r in rows}
+
+
+def sync_status(deal, now=None, counts=None):
+    """
+    Apply time-based transitions: expire stale proposals, start and finish deals.
+
+    `counts` is the optional result of _redemption_counts, so a list page does
+    not run two count queries per deal.
+    """
     now = now or timezone.now()
     today = timezone.localtime(now).date()
     original = deal.status
@@ -200,9 +228,14 @@ def sync_status(deal, now=None):
         record(deal, None, 'activated')
 
     if version and deal.status in (S.ACCEPTED, S.ACTIVE):
-        both_full = all(
-            redemptions_at(deal, shop) >= version.redemption_cap for shop in (deal.proposer, deal.recipient)
-        )
+        if counts is None:
+            both_full = all(
+                redemptions_at(deal, shop) >= version.redemption_cap for shop in (deal.proposer, deal.recipient)
+            )
+        else:
+            both_full = all(
+                counts.get((deal.pk, shop.pk), 0) >= version.redemption_cap for shop in (deal.proposer, deal.recipient)
+            )
         if today > version.end_date or (deal.status == S.ACTIVE and both_full):
             deal.status = S.COMPLETED
             record(deal, None, 'completed')
@@ -212,9 +245,33 @@ def sync_status(deal, now=None):
     return deal
 
 
+def renewal_terms(deal, today=None):
+    """Terms for renewing a completed deal: same offer, cap up by half (rounded up), same length from today."""
+    version = deal.current_version
+    today = today or timezone.localdate()
+    cap = min(-(-version.redemption_cap * 3 // 2), settings.REDEMPTION_CAP_MAX)
+    return {
+        'offer_text': version.offer_text,
+        'discount_percent': version.discount_percent,
+        'redemption_cap': cap,
+        'start_date': today,
+        'end_date': today + (version.end_date - version.start_date),
+        'terms': version.terms,
+    }
+
+
 def sync_all(deals):
+    running = [d for d in deals if d.status in (S.ACCEPTED, S.ACTIVE)]
+    counts = _redemption_counts(running) if running else {}
     for deal in deals:
-        sync_status(deal)
+        sync_status(deal, counts=counts)
+
+
+def customers_sent_this_month(shop):
+    """Redemptions confirmed this calendar month (local time) for customers that `shop`'s QR code sent."""
+    today = timezone.localdate()
+    month_start = timezone.make_aware(datetime.combine(today.replace(day=1), time.min))
+    return Redemption.objects.filter(voucher__referring_shop=shop, confirmed_at__gte=month_start).count()
 
 
 # ---------------------------------------------------------------------------

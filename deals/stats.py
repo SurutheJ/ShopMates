@@ -3,6 +3,7 @@ from django.db.models import Count, Q
 from django.utils import timezone
 
 from accounts.models import Shop
+from shopmates_project.timeutil import local_iso
 
 from .models import Deal, Redemption
 
@@ -40,7 +41,7 @@ def public_stats():
         })
 
     return {
-        'generated_at': timezone.now().isoformat(),
+        'generated_at': local_iso(timezone.now()),
         'min_group_size': min_group,
         'totals': {
             'shops': Shop.objects.filter(status=Shop.Status.APPROVED).count(),

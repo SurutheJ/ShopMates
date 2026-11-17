@@ -1,0 +1,36 @@
+/* Counter card (designv2/qr-card.html). On screen: one card, scaled to the phone.
+   Printed: two copies on one Letter page with a cut line. */
+.card-page{padding:var(--s-3);align-items:center}
+.card-sheet{width:100%;max-width:7.5in}
+.counter-card{background:#fff;border:2px solid var(--coral);border-radius:var(--r-md);padding:var(--s-3);display:grid;gap:var(--s-2);text-align:center}
+.counter-card h1{font-size:20px;line-height:1.15;margin:0}
+.cc-brand{display:flex;align-items:center;justify-content:center;gap:var(--s-2);color:var(--coral-ink);font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.cc-logo{height:32px;width:auto}
+.cc-perk{font-weight:800;color:var(--teal-ink);font-size:15px}
+.counter-card ol{margin:0;padding-left:20px;font-size:13px;line-height:1.4;text-align:left}
+.cc-qr{text-align:center}
+.cc-code{width:min(44vw,2.4in);aspect-ratio:1;margin:0 auto;background:#fff;border:2px solid var(--ink);border-radius:8px;overflow:hidden}
+.cc-code svg{display:block;width:100%;height:100%}
+.cc-qr p{margin:var(--s-1) 0 0;font-size:11px;color:var(--ink-2);word-break:break-all}
+.cc-small{border-top:1px solid var(--line);padding-top:var(--s-2);font-size:11px;line-height:1.4;color:var(--muted);text-align:left}
+.copy,.cut{display:none}
+
+@page{size:Letter;margin:.4in}
+@media print{
+  body{background:#fff}
+  .topbar,.rail,.bottomnav,.actionbar,.sheet-backdrop{display:none!important}   /* app.css hides these too, but its width rules win on a Letter-wide page */
+  .app,.main,.screen,.scroll{display:block;height:auto;overflow:visible;padding:0;margin:0}
+  .card-page{padding:0}
+  .card-sheet{max-width:none;zoom:1!important}   /* the screen preview may be shrunk to fit; paper never is */
+  .counter-card.copy{display:grid}
+  .cut{display:block;border-top:2px dashed #aab;margin:.1in 0;text-align:center;font-size:10px;color:#889;height:0}
+  .counter-card{height:4.7in;padding:.35in .45in;grid-template-columns:1fr 2.4in;gap:.35in;align-items:center;text-align:left;border-radius:18px;break-inside:avoid}
+  .counter-card h1{font-size:34px;line-height:1.08;margin:.1in 0}
+  .cc-brand{font-size:14px;justify-content:flex-start}
+  .cc-logo{height:44px}
+  .cc-perk{font-size:22px}
+  .counter-card ol{margin:.18in 0 0;font-size:16px;line-height:1.5}
+  .cc-code{width:2.4in}
+  .cc-qr p{font-size:11px}
+  .cc-small{grid-column:1/-1;font-size:11.5px}
+}

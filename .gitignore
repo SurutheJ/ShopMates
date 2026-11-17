@@ -27,9 +27,14 @@ staticfiles/
 # Editors and tools
 .idea/
 .vscode/
-.claude/
 *.iml
 
 # OS
 .DS_Store
 Thumbs.db
+*.tgz
+
+# Database backups (contain user data)
+backups/
+# Local working notes, not for git
+docs/HANDOFF-*.md

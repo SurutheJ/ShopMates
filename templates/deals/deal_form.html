@@ -1,65 +1,107 @@
 {% extends "base.html" %}
 
-{% block title %}{% if mode == 'counter' %}Counter-offer{% else %}Propose a deal{% endif %}{% endblock %}
+{% block title %}{% if mode == 'counter' %}Counter-offer{% elif mode == 'edit' %}Edit draft{% else %}Propose a deal{% endif %}{% endblock %}
 
-{% block content %}
-  <div class="card card--medium">
-    <p><a href="{% if mode == 'counter' %}{{ deal.get_absolute_url }}{% else %}{{ recipient.get_absolute_url }}{% endif %}">&larr; Back</a></p>
-    <h1>{% if mode == 'counter' %}Counter-offer to {{ recipient.name }}{% else %}Propose a deal to {{ recipient.name }}{% endif %}</h1>
-    <p class="muted">The same terms apply both ways: customers sent by either shop get this offer at the other.</p>
+{# New and edit: the four-step wizard of designv2/shell-demo.html #s-propose. Counter: #s-counter (one screen plus a diff).
+   One ordinary <form id="deal-form">; the steps are panes inside it, so the server still gets a single POST.
+   Steps 2 to 4 start hidden; app.js shows one at a time. #}
+{% block screen %}
+{% if mode == 'counter' %}
+<section class="screen active" id="s-counter" data-nav="inbox">
+  <div class="screen-head">
+    <a class="btn back" href="{{ deal.get_absolute_url }}"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</a>
+    <span class="badge">Counter</span>
+  </div>
+  <h1>Counter {{ recipient.name }}</h1>
+  <form method="post" id="deal-form">
+    {% csrf_token %}
+    <div class="scroll">
+      {% with v=deal.current_version %}
+      <div class="diff" aria-label="Changes from their offer">
+        <div class="d" data-diff="id_discount_percent" data-orig="{{ v.discount_percent }}" data-suffix="%"><span class="l">Discount</span><span>{{ v.discount_percent }}%</span><span>same</span></div>
+        <div class="d" data-diff="id_redemption_cap" data-orig="{{ v.redemption_cap }}"><span class="l">Cap</span><span>{{ v.redemption_cap }}</span><span>same</span></div>
+        <div class="d" data-diff-dates data-orig="{{ v.start_date|date:'Y-m-d' }}|{{ v.end_date|date:'Y-m-d' }}"><span class="l">Dates</span><span>{{ v.start_date|date:"M j" }} &ndash; {{ v.end_date|date:"M j" }}</span><span>same</span></div>
+      </div>
+      {% endwith %}
+      {% if form.non_field_errors %}<div class="banner bad" role="alert">{% for error in form.non_field_errors %}{{ error }} {% endfor %}</div>{% endif %}
+      {% for field in form.visible_fields %}{% include "partials/_field.html" %}{% endfor %}
+    </div>
+  </form>
+  {# Pinned below the scroll region. The buttons sit outside the form, so they name it with form="deal-form". #}
+  <div class="actionbar">
+    <a class="btn ghost" href="{{ deal.get_absolute_url }}">Cancel</a>
+    <button class="btn" type="submit" form="deal-form">Send counter</button>
+  </div>
+</section>
 
-    <form method="post" id="deal-form">
-      {% csrf_token %}
-      {% include "partials/_form_fields.html" %}
-
-      {% if mode == 'new' %}
-        <div class="field">
-          <label for="id_message">Message to {{ recipient.name }} (optional)</label>
-          <textarea name="message" id="id_message" rows="3" maxlength="1000">{{ message }}</textarea>
-        </div>
-        <p>
-          <button type="button" id="ai-draft" class="btn btn-secondary">Draft with AI</button>
-          <span id="ai-status" class="muted small"></span>
-        </p>
-        <div class="actions">
-          <button class="btn" type="submit" name="action" value="send">Send proposal</button>
-          <button class="btn btn-secondary" type="submit" name="action" value="save">Save as draft</button>
-        </div>
-      {% else %}
-        <button class="btn" type="submit">Send counter-offer</button>
-      {% endif %}
-    </form>
+{% else %}
+<section class="screen active" id="s-propose" data-nav="discover" data-wizard data-start="{% if form.offer_text.errors %}2{% elif form.errors %}3{% else %}1{% endif %}">
+  <div class="screen-head">
+    <a class="btn back" href="{% if mode == 'edit' %}{{ deal.get_absolute_url }}{% else %}{{ recipient.get_absolute_url }}{% endif %}"><svg class="i sm" aria-hidden="true"><use href="#i-x"/></svg> Cancel</a>
+    <span class="badge {% if mode == 'edit' %}draft{% else %}turn{% endif %}">{% if mode == 'edit' %}Draft{% else %}New deal{% endif %}</span>
+  </div>
+  <div class="stepper" aria-label="Progress">
+    <div class="step on"><span class="n">1</span><span>Partner</span></div><hr>
+    <div class="step"><span class="n">2</span><span>Offer</span></div><hr>
+    <div class="step"><span class="n">3</span><span>Terms</span></div><hr>
+    <div class="step"><span class="n">4</span><span>Send</span></div>
   </div>
 
-  {% if mode == 'new' %}
-  <script>
-    (function () {
-      var button = document.getElementById('ai-draft');
-      var status = document.getElementById('ai-status');
-      var form = document.getElementById('deal-form');
-      button.addEventListener('click', function () {
-        status.textContent = 'Drafting...';
-        var body = new URLSearchParams({recipient_id: '{{ recipient.pk }}'});
-        fetch('{% url "deals:ai_draft" %}', {
-          method: 'POST',
-          headers: {'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value},
-          body: body
-        }).then(function (r) { return r.json().then(function (d) { return {ok: r.ok, data: d}; }); })
-          .then(function (res) {
-            if (!res.ok) { status.textContent = res.data.error || 'Could not draft.'; return; }
-            var terms = res.data.terms;
-            Object.keys(terms).forEach(function (key) {
-              var el = document.getElementById('id_' + key);
-              if (el) { el.value = terms[key]; }
-            });
-            document.getElementById('id_message').value = res.data.message;
-            status.textContent = res.data.source === 'ai'
-              ? 'Draft filled in. Review and edit before sending.'
-              : 'Starting terms filled in (' + res.data.reason + '). Review before sending.';
-          })
-          .catch(function () { status.textContent = 'Could not draft. Try again.'; });
-      });
-    })();
-  </script>
-  {% endif %}
+  <form method="post" id="deal-form">
+    {% csrf_token %}
+    <div class="scroll" data-step="1"><h1>Who is it with?</h1>
+      <div class="card">
+        <div style="display:flex;gap:12px;align-items:center"><div class="avatar cat--{{ recipient.category }}" aria-hidden="true">{{ recipient.initials }}</div><div><h3>{{ recipient.name }}</h3><p class="muted sm">{{ recipient.get_category_display }} &middot; {{ recipient.address }}</p></div></div>
+        <dl class="kv" style="margin-top:12px"><dt>Your typical spend</dt><dd>${{ my_shop.typical_order_value }}</dd><dt>Their typical spend</dt><dd>${{ recipient.typical_order_value }}</dd></dl>
+      </div>
+      <p class="muted sm">The same terms apply both ways: customers sent by either shop get this offer at the other.</p>
+      {% if spend_note %}<div class="callout warn">{{ spend_note }}</div>{% endif %}
+      {% if renewing %}<div class="callout">Renewing your earlier deal with {{ recipient.name }}. The cap is raised by half and the dates start today. Change anything you like; the old deal stays as it was.</div>{% endif %}
+    </div>
+
+    <div class="scroll" data-step="2" hidden><h1>Your offer</h1>
+      <button type="button" id="ai-draft" class="btn ghost block" data-url="{% url 'deals:ai_draft' %}" data-recipient="{{ recipient.pk }}">Draft with AI</button>
+      <span id="ai-status" class="muted sm" role="status"></span>
+      {% with field=form.offer_text %}{% include "partials/_field.html" %}{% endwith %}
+      <div class="callout">The AI only words the offer. The cap and dates are checked by the app.</div>
+    </div>
+
+    <div class="scroll" data-step="3" hidden><h1>Adjust the terms</h1>
+      {% if form.non_field_errors %}<div class="banner bad" role="alert">{% for error in form.non_field_errors %}{{ error }} {% endfor %}</div>{% endif %}
+      {% with field=form.discount_percent %}{% include "partials/_field.html" %}{% endwith %}
+      {% with field=form.redemption_cap %}{% include "partials/_field.html" %}{% endwith %}
+      {% with field=form.start_date %}{% include "partials/_field.html" %}{% endwith %}
+      {% with field=form.end_date %}{% include "partials/_field.html" %}{% endwith %}
+      {% with field=form.terms %}{% include "partials/_field.html" %}{% endwith %}
+    </div>
+
+    <div class="scroll" data-step="4" hidden><h1>Review and send</h1>
+      <div class="card"><dl class="kv">
+        <dt>To</dt><dd>{{ recipient.name }}</dd>
+        <dt>Offer</dt><dd data-review="id_offer_text"></dd>
+        <dt>Discount</dt><dd data-review="id_discount_percent" data-suffix="%"></dd>
+        <dt>Cap</dt><dd data-review="id_redemption_cap" data-suffix=" each"></dd>
+        <dt>Dates</dt><dd data-review-dates></dd>
+      </dl></div>
+      <div class="card" data-fairness="{% url 'deals:fairness' recipient.pk %}">
+        <div style="display:flex;gap:12px;align-items:center;justify-content:space-between"><h3>Is it balanced?</h3><span class="badge" data-fair-label hidden></span></div>
+        <dl class="kv" style="margin-top:12px" data-fair-profits></dl>
+        <p class="sm" data-fair-text role="status">Estimating...</p>
+        <div class="callout bad" data-fair-blockers hidden></div>
+        <p class="sm muted">Estimate for negotiation, not a forecast. Assumes every redeemer is a new customer who spends the average ticket once.<span data-fair-assumed hidden> A margin of 50% is assumed where a shop has not set one.</span></p>
+      </div>
+      <div class="field"><label for="id_message">Add a note (optional)</label><textarea class="input" name="message" id="id_message" rows="3" maxlength="1000">{{ message }}</textarea></div>
+      <button class="btn ghost block" type="submit" name="action" value="save">Save as draft</button>
+      <p class="xs muted">They can accept, decline or counter. A counter-offer replaces these terms and asks you to confirm again.</p>
+    </div>
+  </form>
+  {# Pinned below the scroll region. Back and Next are shown by app.js; Send is the real submit button and names the form. #}
+  <div class="actionbar">
+    <button class="btn ghost" type="button" data-prev hidden>Back</button>
+    <button class="btn" type="button" data-next hidden>Next</button>
+    <button class="btn" type="submit" form="deal-form" name="action" value="send" data-send>Send proposal</button>
+  </div>
+  <noscript><style>[data-step][hidden]{display:flex!important}</style></noscript>
+</section>
+{% endif %}
 {% endblock %}

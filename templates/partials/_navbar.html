@@ -12,6 +12,9 @@
         {% if my_membership.role == 'owner' %}
           <a class="tab {% if current == 'accounts:discover' or current == 'accounts:shop_detail' %}active{% endif %}" href="{% url 'accounts:discover' %}">Discover</a>
         {% endif %}
+        {% if my_membership.role == 'owner' %}
+          <a class="tab {% if current == 'deals:playbook' %}active{% endif %}" href="{% url 'deals:playbook' %}">Playbook</a>
+        {% endif %}
         <a class="tab {% if current == 'deals:redeem' %}active{% endif %}" href="{% url 'deals:redeem' %}">Redeem</a>
         {% if my_membership.role == 'owner' %}
           <a class="tab {% if current == 'accounts:shop_edit' or current == 'accounts:shop_staff' %}active{% endif %}" href="{% url 'accounts:shop_edit' %}">My shop</a>

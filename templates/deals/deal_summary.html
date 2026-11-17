@@ -2,45 +2,67 @@
 
 {% block title %}Deal summary{% endblock %}
 
-{% block content %}
-  <p><a href="{{ deal.get_absolute_url }}">&larr; Back to deal</a></p>
-  <div class="section-head">
-    <div>
-      <h1>{{ deal.proposer.name }} and {{ deal.recipient.name }}</h1>
-      <p><span class="badge badge--{{ deal.status }}">{{ deal.get_status_display }}</span>
-        <span class="muted">{{ summary.version.discount_percent }}% &middot; {{ summary.version.start_date|date:"M j" }} to {{ summary.version.end_date|date:"M j" }}</span></p>
-    </div>
-    <div class="actions">
-      <a class="btn" href="{% url 'deals:export_csv' deal.pk %}">Download CSV</a>
-      <a class="btn btn-secondary" href="{% url 'deals:export_json' deal.pk %}">Download JSON</a>
-    </div>
+{# designv2 "live" > Results, as its own page: tiles, per-shop table, chart, fairness callout, coach, exports. #}
+{% block screen %}
+<section class="screen active" id="s-summary">
+  <div class="screen-head">
+    <a class="btn back" href="{{ deal.get_absolute_url }}"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</a>
+    <span class="badge {{ deal.status_tone }}">{{ deal.get_status_display }}</span>
   </div>
+  <div><h1>{{ deal.proposer.name }} and {{ deal.recipient.name }}</h1>
+    <p class="muted sm">{{ summary.version.discount_percent }}% &middot; {{ summary.version.start_date|date:"M j" }} to {{ summary.version.end_date|date:"M j" }} &middot; {{ summary.total }} redemption{{ summary.total|pluralize }}</p></div>
+  <div class="scroll">
+    <div class="card">
+      <h3>Customers sent and received</h3>
+      <table class="tbl">
+        <thead><tr><th>Shop</th><th>Sent</th><th>Got</th><th>Est. cost</th></tr></thead>
+        <tbody>
+          {% for side in summary.sides %}
+            <tr><td>{{ side.shop.name }}</td><td>{{ side.sent }}</td><td>{{ side.received }}</td><td>${{ side.cost|floatformat:2 }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="xs muted">Sent = customers this shop sent to its partner. Cost = redemptions honored x discount x the shop's typical spend.</p>
+    </div>
 
-  <div class="card">
-    <h3>Customers sent and received</h3>
-    <table class="table">
-      <thead><tr><th>Shop</th><th class="right">Sent to partner</th><th class="right">Received from partner</th><th class="right">Estimated discount cost</th></tr></thead>
-      <tbody>
-        {% for side in summary.sides %}
-          <tr><td>{{ side.shop.name }}</td><td class="right">{{ side.sent }}</td><td class="right">{{ side.received }}</td><td class="right">${{ side.cost|floatformat:2 }}</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <p class="muted">{{ summary.total }} redemption{{ summary.total|pluralize }} in total. Cost = redemptions honored x discount x the shop's typical spend.</p>
-  </div>
+    {% if chart_svg %}<div class="card"><h3>Customers sent per day</h3>{{ chart_svg }}</div>{% endif %}
 
-  <div class="card">
-    <h3>Is it fair?</h3>
     {% if summary.lopsided %}
-      <p class="notice">{{ summary.suggestion }}</p>
+      <div class="callout warn"><b>Is it fair?</b> {{ summary.suggestion }}</div>
     {% elif summary.total < 4 %}
-      <p class="muted">Not enough redemptions yet to judge. Check back after a few more.</p>
+      <div class="callout"><b>Is it fair?</b> Not enough redemptions yet to judge. Check back after a few more.</div>
     {% else %}
-      <p>Both shops are sending a similar number of customers. This looks balanced.</p>
+      <div class="callout"><b>Is it fair?</b> Both shops are sending a similar number of customers. This looks balanced.</div>
     {% endif %}
-  </div>
 
-  {% if qr_svg %}
-    <div class="card"><h3>Your QR code</h3><div class="qr">{{ qr_svg }}</div></div>
+    <div class="card" id="coach">
+      <h3>Deal coach</h3>
+      <p class="muted sm">Explains the numbers above in plain English. The app computes the numbers; the AI only words them.</p>
+      <button type="button" id="coach-btn" class="btn ghost block" data-url="{% url 'deals:coach' deal.pk %}" data-csrf="{{ csrf_token }}">Explain this deal</button>
+      <p id="coach-status" class="muted sm" role="status"></p>
+      <div id="coach-out" hidden>
+        <p id="coach-text" class="callout"></p>
+        <p class="xs muted" id="coach-source"></p>
+      </div>
+      <h4>Suggested renewal</h4>
+      <dl class="kv">
+        <dt>Discount</dt><dd>{{ renewal.discount_percent }}%</dd>
+        <dt>Cap per shop</dt><dd>{{ renewal.redemption_cap }}</dd>
+        <dt>Length</dt><dd>{{ renewal.duration_days }} days</dd>
+        {% if renewal.perk %}<dt>Perk</dt><dd>{{ renewal.perk }}</dd>{% endif %}
+      </dl>
+    </div>
+
+    <div class="card">
+      <h3>Export</h3>
+      <div class="head-actions"><a class="btn ghost" href="{% url 'deals:export_csv' deal.pk %}">Download CSV</a><a class="btn ghost" href="{% url 'deals:export_json' deal.pk %}">Download JSON</a></div>
+    </div>
+  </div>
+  {% if qr_url %}
+    <div class="actionbar">
+      <a class="btn ghost" href="{% url 'deals:card' deal.pk %}">Print counter card</a>
+      <a class="btn" href="{% url 'deals:qr' deal.pk %}">Show QR code</a>
+    </div>
   {% endif %}
+</section>
 {% endblock %}

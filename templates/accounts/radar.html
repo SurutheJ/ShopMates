@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Deal Radar{% endblock %}
+
+{# The map needs Leaflet (static/vendor/leaflet). Scripts are files with defer, never inline: the CSP only runs scripts from this site. #}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+  <script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
+  <script src="{% static 'js/radar_map.js' %}" defer></script>
+{% endblock %}
+
+{# Same screen structure as discover.html. Filters live in the URL: radius and category chips are links. The map sits at the top of the one .scroll region on phones and beside it from 768px (see "Deal Radar map" in app.css). #}
+{% block screen %}
+<section class="screen active" id="s-radar">
+  <div class="screen-head">
+    <div><h1>Deal Radar</h1><p class="muted sm">Shops within walking distance, ranked by fit, walk and hours</p><p id="radar-copy-status" class="muted sm" role="status"></p></div>
+    <a class="btn ghost sm nowrap" href="{% url 'accounts:discover' %}">All shops</a>
+  </div>
+  {% if not shop_approved %}<div class="banner" role="status">Your shop is waiting for approval. You can browse, but not propose deals yet.</div>{% endif %}
+  {% if not has_location %}
+    <div class="scroll">
+      <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg></div><h2>Add your shop location</h2><p class="sm">Radar measures walking distance, so it needs your shop's latitude and longitude.</p><a class="btn" href="{% url 'accounts:shop_edit' %}">Go to My shop</a></div>
+    </div>
+  {% else %}
+    {% if osm_unavailable %}<div class="banner" role="status">Showing ShopMates shops only</div>{% endif %}
+    <div class="chips" role="group" aria-label="Radius">
+      {% for value in radii %}<a class="chip" href="?radius={{ value }}&amp;category={{ category }}"{% if value == radius %} aria-current="true"{% endif %}>{{ value }} m</a>{% endfor %}
+    </div>
+    <div class="chips" role="group" aria-label="Category">
+      <a class="chip" href="?radius={{ radius }}&amp;category="{% if not category %} aria-current="true"{% endif %}>All</a>
+      {% for value, label in categories %}<a class="chip" href="?radius={{ radius }}&amp;category={{ value }}"{% if value == category %} aria-current="true"{% endif %}>{{ label }}</a>{% endfor %}
+    </div>
+    {% if few_results %}<p class="muted sm">{{ results|length }} shop{{ results|length|pluralize }} within {{ radius }} m.{% if radius < 1000 %} Try a larger radius to see more.{% endif %}</p>{% endif %}
+
+    <div class="radar-split">
+      <div class="scroll discover">
+        <div id="radar-map" role="img" aria-label="Map of nearby shops. The list shows the same shops."></div>
+        {% for r in results %}
+          <div class="row" style="cursor:default">
+            <span class="avatar cat--{{ r.shop.category }}" aria-hidden="true">{{ r.shop.initials }}</span>
+            <div class="grow{% if not r.registered %} muted{% endif %}">
+              <h3>{{ r.shop.name }}</h3>
+              <p class="muted sm" style="white-space:normal"><span class="tag cat--{{ r.shop.category }}">{{ r.shop.category_short }}</span>{% if not r.registered %} <span class="nowrap">&middot; Not on ShopMates yet</span>{% endif %}</p>
+              <p class="sm">{{ r.reason }}</p>
+              <p class="xs muted">{{ r.hours_note }}{% if r.audience_note %} &middot; audience: {{ r.audience_note }}{% endif %}</p>
+            </div>
+            <span class="badge {% if r.score >= 80 %}ok{% endif %}">{{ r.score }} &middot; {{ r.tier }}</span>
+          <div class="radar-actions">
+            {% if r.registered %}
+              <a class="btn ghost sm" href="{{ r.shop.get_absolute_url }}">View</a>
+              {% if can_propose %}<a class="btn ghost sm" href="{% url 'deals:new' r.shop.pk %}">Propose a deal</a>{% endif %}
+            {% else %}
+              <button class="btn ghost sm" type="button" data-copy="Hi {{ r.shop.name }}, I run {{ my_shop.name }} nearby. I would like to set up a customer-sharing deal with you through ShopMates. Join here: {{ site_url }}" data-copy-status="radar-copy-status">Invite</button>
+            {% endif %}
+          </div>
+          </div>
+        {% empty %}
+          <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg></div><h2>No shops in range</h2><p class="sm">No shops with a location are within {{ radius }} m. Try a larger radius or another category.</p></div>
+        {% endfor %}
+      </div>
+    </div>
+    {{ points|json_script:"radar-points" }}
+  {% endif %}
+</section>
+{% endblock %}

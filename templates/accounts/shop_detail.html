@@ -2,19 +2,38 @@
 
 {% block title %}{{ shop.name }}{% endblock %}
 
-{% block content %}
-  <div class="card card--medium">
-    <p><a href="{% url 'accounts:discover' %}">&larr; Back to search</a></p>
-    <h1>{{ shop.name }}</h1>
-    <p class="muted">{{ shop.get_category_display }}{% if is_mine %} &middot; this is your shop{% endif %}</p>
-    <table class="table">
-      <tr><th>Address</th><td>{{ shop.address }}, {{ shop.city }}</td></tr>
-      {% if shop.hours %}<tr><th>Hours</th><td>{{ shop.hours }}</td></tr>{% endif %}
-      {% if distance is not None %}<tr><th>Distance</th><td>{{ distance|floatformat:1 }} miles</td></tr>{% endif %}
-      <tr><th>Typical spend</th><td>${{ shop.typical_order_value }}</td></tr>
-    </table>
-    {% if can_propose and my_membership.role == 'owner' %}
-      <a class="btn" href="{% url 'deals:new' shop.pk %}">Propose a deal</a>
+{# Native design screen (designv2/shell-demo.html #s-shop). The mock's "Their pitch" card has no data behind it yet (shops have no pitch or tags), so it is left out. #}
+{% block screen %}
+<section class="screen active" id="s-shop" data-nav="discover">
+  <div class="screen-head">
+    <a class="btn back" href="{% url 'accounts:discover' %}"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</a>
+    {% if not is_mine %}<button class="btn ghost sm" type="button" data-soon="Report and block" aria-label="Report or block (coming soon)">Report</button>{% endif %}
+  </div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="avatar lg cat--{{ shop.category }}" aria-hidden="true">{{ shop.initials }}</div>
+    <div>
+      <h1>{{ shop.name }}</h1>
+      <p style="margin-top:6px"><span class="tag cat--{{ shop.category }}">{{ shop.category_short }}</span>{% if is_mine %} <span class="muted sm">this is your shop</span>{% endif %}</p>
+      <p class="muted sm" style="margin-top:4px">{{ shop.address }}, {{ shop.city }}{% if shop.hours %} &middot; {{ shop.hours }}{% endif %}</p>
+    </div>
+  </div>
+  <div class="scroll">
+    <div class="stats">
+      {% if match %}<div class="stat"><b>{{ match.score }}</b><span>match</span></div>{% endif %}
+      {% if not is_mine %}<div class="stat"><b>{% if distance is not None %}{{ distance|floatformat:1 }}{% else %}–{% endif %}</b><span>miles</span></div>{% endif %}
+      <div class="stat warn"><b>${{ shop.typical_order_value|floatformat:"-2" }}</b><span>typical spend</span></div>
+    </div>
+    {% if match %}
+      <div class="card"><h3>Why this match</h3>
+        <ul class="sm" style="margin:8px 0 0;padding-left:18px;display:grid;gap:4px">
+          {% for positive, text in match.reasons %}<li{% if not positive %} style="color:var(--warn)"{% endif %}>{{ text }}</li>{% endfor %}
+        </ul>
+        <p class="xs muted" style="margin-top:8px">{{ match.label }}. Score = 45% category fit, 35% walking distance, 20% spend balance. Computed from your shop profiles, no AI involved.</p>
+      </div>
     {% endif %}
   </div>
+  {% if can_propose and my_membership.role == 'owner' %}
+    <div class="actionbar"><a class="btn block" href="{% url 'deals:new' shop.pk %}">Propose a deal</a></div>
+  {% endif %}
+</section>
 {% endblock %}

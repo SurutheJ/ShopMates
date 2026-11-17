@@ -1,0 +1,62 @@
+{
+  "frozen_on": "2026-11-16",
+  "note": "Development set. Used to design the synonym fix, so scores on it are optimistic.",
+  "cases": [
+    {
+      "question": "What deal should a bakery offer a flower shop?",
+      "expected": "bakery-flowers"
+    },
+    {
+      "question": "coffee shop and bookstore partnership ideas",
+      "expected": "cafe-bookstore"
+    },
+    {
+      "question": "our deal feels unfair, one shop sends more customers",
+      "expected": "lopsided-deals"
+    },
+    {
+      "question": "how many redemptions should I allow",
+      "expected": "caps-and-dates"
+    },
+    {
+      "question": "what should staff do at the counter",
+      "expected": "staff-training"
+    },
+    {
+      "question": "how do I know if a deal is fair",
+      "expected": "measuring-fairness"
+    },
+    {
+      "question": "best time of year to run a promotion near campus",
+      "expected": "seasonal-timing"
+    },
+    {
+      "question": "gym and smoothie bar tie-in",
+      "expected": "cafe-fitness"
+    },
+    {
+      "question": "two cafes next to each other, should we partner",
+      "expected": "competing-categories"
+    },
+    {
+      "question": "hair salon working with a clothing boutique",
+      "expected": "salon-retail"
+    },
+    {
+      "question": "date night restaurant and florist",
+      "expected": "restaurant-flowers"
+    },
+    {
+      "question": "free cookie instead of a percent discount",
+      "expected": "purchase-triggered"
+    },
+    {
+      "question": "package dinner and a show for one price",
+      "expected": "bundled-experience"
+    },
+    {
+      "question": "cheap deals for stores with different prices",
+      "expected": "reciprocal-discount"
+    }
+  ]
+}

@@ -1,24 +1,24 @@
 # Product: users, screens, lifecycle, rules
 
-Status: the MVP below is built and tested. Items marked (P) were proposals; the implemented choice is noted in DECISIONS.md.
+Status: everything below is built and tested except where it says otherwise. The choices we made while building are in DECISIONS.md.
 
 ## Users and permissions
 
 | Role | Can | Cannot |
 |---|---|---|
 | Owner | Edit own shop, create/send/answer proposals, view own deals and redemptions, invite staff, export own data | See another shop's private data |
-| Staff | Open the redeem page for their shop's active deals and confirm redemptions | View deal terms history, stats, or export |
+| Staff | Open the redeem page for their shop's active deals and confirm redemptions; see their shop's pending deals as a read-only list | Approve, counter or decline, view deal history, stats, or export |
 | Customer (no account) | Open a voucher link, view the offer, receive a one-time code | Anything else |
 | Admin | Approve or suspend shops, moderate, view everything via Django admin | n/a |
 
 A shop only ever sees deals it is a party to.
 
-## Screens (MVP)
+## Screens
 
 | # | Screen | Who | Contents |
 |---|---|---|---|
 | 1 | Landing and sign-in | Anyone | What it is, Google sign-in |
-| 2 | Shop setup | Owner | Name, category, address, hours, typical order value |
+| 2 | Shop setup and My shop | Owner | Name, category, address, hours, description, typical order value, margin, staff, account |
 | 3 | Home inbox | Owner | Actions waiting on you first (proposals to answer, counters, deals ending soon), then active deals |
 | 4 | Discover | Owner | Search nearby shops by category and distance; shop detail page with "Propose a deal" |
 | 5 | Proposal builder | Owner | Offer text, dates, redemption cap, terms, "Draft with AI" |
@@ -28,6 +28,8 @@ A shop only ever sees deals it is a party to.
 | 9 | Redeem | Staff | Enter or scan a code; shows valid or the reason it isn't; Confirm |
 | 10 | Voucher | Customer | Offer, shop, validity, one-time code |
 | 11 | Public stats | Anyone | Anonymized aggregates (see API section in ARCHITECTURE.md) |
+| 12 | Radar | Owner | Map and ranked list of nearby shops with a score and a reason, filter by radius and category |
+| 13 | Playbook | Owner | Ask a question about deal structures, get cited passages |
 
 The home inbox is the primary screen. If a screen is only charts, it is secondary.
 
@@ -63,19 +65,15 @@ Rules:
 4. A confirmed redemption stores the code, time, shop and staff user. It stores no customer information.
 5. Confirmation must be idempotent: confirming the same code twice does not count twice.
 
-## Fairness view (P3)
+## Fairness
 
-For each shop in a deal:
-- Customers sent (redemptions made at the partner using this shop's referral)
-- Customers received
-- Estimated discount cost = redemptions at this shop x discount x typical order value
-
-The summary shows the balance and, if it is lopsided beyond a threshold, suggests a renewal with adjusted terms. All numbers are computed in Python; the AI only explains them (see AI.md).
+For each shop in a deal the summary shows customers sent, customers received and estimated discount cost (redemptions at this shop x discount x typical order value). If the deal is lopsided beyond a threshold it suggests a renewal with adjusted terms. Before sending, step 4 of the proposal form shows an estimate of each shop's profit and a suggested discount. All numbers are computed in Python; the model only words them (see README_AI.md).
 
 ## Phases
 
-- **MVP:** everything above, plus public stats API and AI drafting.
-- **Later:** email notifications, multi-location shops, bundled "passport" deals.
+- **Built:** everything above, plus the public stats API and the AI features.
+- **Next:** negotiation copilot, terms checker, notifications, Terms and Privacy pages.
+- **Later:** multi-location shops, bundled "passport" deals.
 - **Out of scope:** payments, customer accounts, automatic shop matching.
 
 ## Pilot plan (not yet done)

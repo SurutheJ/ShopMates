@@ -1,0 +1,25 @@
+{% comment %}Nav links for the side rail and the floating bar. Markup follows designv2/shell-demo.html (.nav-item > .ico > svg.i, then the label). Owners see Inbox, Discover, Redeem, Playbook and My shop (Stats and Log out are on the My shop page); staff see two.{% endcomment %}
+<a class="nav-item" href="{% url 'deals:inbox' %}"{% if nav_active == 'inbox' %} aria-current="page"{% endif %}>
+  <span class="ico"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg></span>
+  <span>Inbox</span>{% if inbox_waiting %}<span class="dot">{{ inbox_waiting }}</span>{% endif %}
+</a>
+{% if my_membership.role == 'owner' %}
+<a class="nav-item" href="{% url 'accounts:discover' %}"{% if nav_active == 'discover' %} aria-current="page"{% endif %}>
+  <span class="ico"><svg class="i" aria-hidden="true"><use href="#i-compass"/></svg></span>
+  <span>Discover</span>
+</a>
+{% endif %}
+<a class="nav-item" href="{% url 'deals:redeem' %}"{% if nav_active == 'redeem' %} aria-current="page"{% endif %}>
+  <span class="ico"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
+  <span>Redeem</span>
+</a>
+{% if my_membership.role == 'owner' %}
+<a class="nav-item" href="{% url 'deals:playbook' %}"{% if nav_active == 'playbook' %} aria-current="page"{% endif %}>
+  <span class="ico"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg></span>
+  <span>Playbook</span>
+</a>
+<a class="nav-item" href="{% url 'accounts:shop_edit' %}"{% if nav_active == 'me' %} aria-current="page"{% endif %}>
+  <span class="ico"><svg class="i" aria-hidden="true"><use href="#i-shop"/></svg></span>
+  <span>My shop</span>
+</a>
+{% endif %}
