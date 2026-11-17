@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Playbook{% endblock %}
+
+{# designv2 "playbook" screen. Three states: an AI answer, matching passages with a banner (AI off or rejected), and "not covered". #}
+{% block screen %}
+<section class="screen active" id="s-playbook">
+  <div><h1>Deal playbook</h1><p class="muted sm">Answers cite their sources</p></div>
+  <form method="get" style="display:flex;gap:8px">
+    <input class="input" style="flex:1;min-width:0" type="search" name="q" value="{{ question }}" placeholder="What deal should a bakery offer a flower shop?" maxlength="300" aria-label="Question">
+    <button class="btn" type="submit">Ask</button>
+  </form>
+  <div class="scroll">
+    {% if not question %}
+      <p class="muted sm">Try one of these</p>
+      {% for example in examples %}<a class="row" href="?q={{ example|urlencode }}"><div class="grow" style="white-space:normal">{{ example }}</div></a>{% endfor %}
+    {% elif result %}
+      {% if result.answer %}
+        <div class="callout"><b>Answer.</b> {{ result.answer }}</div>
+        <p class="muted sm">Written by AI using only the passages below.</p>
+      {% elif result.source == 'none' %}
+        <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg></div><h2>The playbook does not cover this</h2><p class="sm">It only answers from its own guides, so it says so instead of guessing.</p></div>
+      {% elif result.reason %}
+        <div class="banner">{{ result.reason }}</div>
+      {% endif %}
+      {% if result.passages %}
+        <p class="muted sm">Sources</p>
+        {% for p in result.passages %}
+          <div class="card"><h3>{{ p.title }}</h3><p class="sm muted">{{ p.text }}</p><p class="xs muted">relevance {{ p.score }}</p></div>
+        {% endfor %}
+      {% endif %}
+      {% if result.answer %}
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost sm" type="button" data-soon="Feedback"><svg class="i sm" aria-hidden="true"><use href="#i-thumb-up"/></svg> Useful</button>
+          <button class="btn ghost sm" type="button" data-soon="Feedback"><svg class="i sm" aria-hidden="true"><use href="#i-thumb-down"/></svg> Not useful</button>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

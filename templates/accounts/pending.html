@@ -4,7 +4,12 @@
 
 {% block content %}
   <div class="card card--narrow">
+    {% if shop.status == 'suspended' %}
+    <h1>Shop suspended</h1>
+    <p class="muted">{{ shop.name }} was suspended by an admin, so it cannot propose or redeem deals right now. Ask the ShopMates team to review it.</p>
+    {% else %}
     <h1>Waiting for approval</h1>
     <p class="muted">{{ shop.name }} is {{ shop.get_status_display|lower }}. An admin needs to approve new shops before they can propose or redeem deals.</p>
+    {% endif %}
   </div>
 {% endblock %}

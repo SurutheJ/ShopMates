@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShopMates design gallery (v2, Light Coral)</title>
+<style>
+ body{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;background:#F7F2EE;margin:0;padding:24px;color:#1A1410}
+ h1{margin:0 0 4px} p{margin:0 0 20px;color:#3A2F29}
+ h2{font-size:16px;margin:28px 0 10px}
+ .frames{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+ figure{margin:0} figcaption{font-size:13px;color:#3A2F29;margin-top:6px;max-width:390px}
+ iframe{border:0;background:#fff;border-radius:22px;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+ .phone{width:390px;height:780px} .tablet{width:820px;height:600px;border-radius:14px} .desk{width:1280px;height:720px;border-radius:10px} .land{width:667px;height:375px;border-radius:18px} .doc{width:820px;height:700px;border-radius:10px}
+</style></head><body>
+<h1>ShopMates design gallery (v2, Light Coral)</h1>
+<p>Every frame is a live file at a given viewport and screen. Click through inside a frame. Files: <code>shell-demo.html</code> (signed-in app), <code>public-demo.html</code> (visitors, sign-in, setup, errors), <code>agreement.html</code>, <code>qr-card.html</code>. Run <code>python design/check_design.py</code> to verify layout, tap targets and contrast for all of them.</p>
+<h2>Core flow, phone 390 x 780 (bottom nav, one scroll region per screen)</h2>
+<div class="frames">
+ <figure><iframe class="phone" src="shell-demo.html?screen=inbox" title="Inbox" loading="lazy"></iframe><figcaption>Inbox</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=discover" title="Discover" loading="lazy"></iframe><figcaption>Discover</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=shop" title="Shop detail (report, block)" loading="lazy"></iframe><figcaption>Shop detail (report, block)</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=propose&step=1" title="Deal wizard 1: partner" loading="lazy"></iframe><figcaption>Deal wizard 1: partner</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=propose&step=2" title="Deal wizard 2: AI draft" loading="lazy"></iframe><figcaption>Deal wizard 2: AI draft</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=propose&step=3" title="Deal wizard 3: terms" loading="lazy"></iframe><figcaption>Deal wizard 3: terms</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=propose&step=4" title="Deal wizard 4: review" loading="lazy"></iframe><figcaption>Deal wizard 4: review</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=deal" title="Deal room" loading="lazy"></iframe><figcaption>Deal room</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=counter" title="Counter with AI suggestion and diff" loading="lazy"></iframe><figcaption>Counter with AI suggestion and diff</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=agree" title="Agreement: sign" loading="lazy"></iframe><figcaption>Agreement: sign</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=live" title="Live deal: QR, results, agreement" loading="lazy"></iframe><figcaption>Live deal: QR, results, agreement</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=redeem" title="Staff redeem" loading="lazy"></iframe><figcaption>Staff redeem</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=playbook" title="Playbook" loading="lazy"></iframe><figcaption>Playbook</figcaption></figure>
+</div>
+<h2>Account and operations, phone</h2>
+<div class="frames">
+ <figure><iframe class="phone" src="shell-demo.html?screen=notifs" title="Notifications" loading="lazy"></iframe><figcaption>Notifications</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=me" title="My shop: profile, team, account" loading="lazy"></iframe><figcaption>My shop: profile, team, account</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=insights" title="AI usage (staff)" loading="lazy"></iframe><figcaption>AI usage (staff)</figcaption></figure>
+ <figure><iframe class="phone" src="shell-demo.html?screen=states" title="Empty, loading, error, offline" loading="lazy"></iframe><figcaption>Empty, loading, error, offline</figcaption></figure>
+</div>
+<h2>Public, sign-in and first-time setup, phone (no bottom nav)</h2>
+<div class="frames">
+ <figure><iframe class="phone" src="public-demo.html?screen=landing" title="Landing" loading="lazy"></iframe><figcaption>Landing</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=login" title="Log in" loading="lazy"></iframe><figcaption>Log in</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=reset" title="Password reset" loading="lazy"></iframe><figcaption>Password reset</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=signup" title="Sign up with consent" loading="lazy"></iframe><figcaption>Sign up with consent</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=onboard&step=1" title="Shop setup 1" loading="lazy"></iframe><figcaption>Shop setup 1</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=onboard&step=2" title="Shop setup 2" loading="lazy"></iframe><figcaption>Shop setup 2</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=onboard&step=3" title="Shop setup 3" loading="lazy"></iframe><figcaption>Shop setup 3</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=voucher" title="Customer voucher" loading="lazy"></iframe><figcaption>Customer voucher (no login)</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=stats" title="Public stats" loading="lazy"></iframe><figcaption>Public stats</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=pending" title="Pending approval" loading="lazy"></iframe><figcaption>Pending approval</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=terms" title="Terms and privacy" loading="lazy"></iframe><figcaption>Terms and privacy</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=e404" title="404" loading="lazy"></iframe><figcaption>404</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=e500" title="500" loading="lazy"></iframe><figcaption>500</figcaption></figure>
+ <figure><iframe class="phone" src="public-demo.html?screen=offline" title="Offline" loading="lazy"></iframe><figcaption>Offline</figcaption></figure>
+</div>
+<h2>Tablet 820 x 600 (side rail)</h2>
+<div class="frames"> <figure><iframe class="tablet" src="shell-demo.html?screen=inbox" title="Inbox" loading="lazy"></iframe><figcaption>Inbox</figcaption></figure> <figure><iframe class="tablet" src="shell-demo.html?screen=discover" title="Discover (two columns)" loading="lazy"></iframe><figcaption>Discover (two columns)</figcaption></figure></div>
+<h2>Desktop 1280 x 720 (wide rail, inbox has two panes)</h2>
+<div class="frames"> <figure><iframe class="desk" src="shell-demo.html?screen=inbox" title="Inbox master-detail" loading="lazy"></iframe><figcaption>Inbox master-detail</figcaption></figure> <figure><iframe class="desk" src="shell-demo.html?screen=discover" title="Discover" loading="lazy"></iframe><figcaption>Discover</figcaption></figure></div>
+<h2>Phone on its side 667 x 375 (icon rail)</h2>
+<div class="frames"> <figure><iframe class="land" src="shell-demo.html?screen=deal" title="Deal room" loading="lazy"></iframe><figcaption>Deal room</figcaption></figure> <figure><iframe class="land" src="shell-demo.html?screen=redeem" title="Redeem" loading="lazy"></iframe><figcaption>Redeem</figcaption></figure></div>
+<h2>Print documents</h2>
+<div class="frames"> <figure><iframe class="doc" src="agreement.html" title="Agreement" loading="lazy"></iframe><figcaption>Agreement</figcaption></figure> <figure><iframe class="doc" src="qr-card.html" title="Counter card (two per Letter page)" loading="lazy"></iframe><figcaption>Counter card (two per Letter page)</figcaption></figure></div>
+</body></html>

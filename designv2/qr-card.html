@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Counter card | Green Street Cafe sends guests to Pageturner Books</title>
+<style>
+ /* Counter card: prints two per Letter page (cut line in the middle), or one at 5 x 7 inches. */
+ *{box-sizing:border-box}
+ @page{size:Letter;margin:0.4in}
+ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1A1410;background:#F7F2EE;margin:0;padding:24px}
+ .page{width:7.5in;margin:0 auto;display:grid;gap:0}
+ .card{height:4.7in;background:#fff;border:2px solid #FF7A59;border-radius:18px;padding:.35in .45in;display:grid;grid-template-columns:1fr 2.4in;gap:.35in;align-items:center;margin:0 0 .12in}
+ .brand{display:flex;align-items:center;gap:10px;color:#B5391A;font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase}
+ h1{font-size:38px;line-height:1.08;margin:.12in 0}
+ .perk{font-size:22px;font-weight:800;color:#166534}
+ ol{margin:.18in 0 0;padding-left:20px;font-size:16px;line-height:1.5}
+ .qrwrap{text-align:center}
+ .qr{width:2.4in;height:2.4in;background:repeating-conic-gradient(#1A1410 0 25%,#fff 0 50%) 0 0/16% 16%;border:8px solid #fff;outline:2px solid #1A1410;border-radius:8px}
+ .qrwrap p{margin:.08in 0 0;font-size:13px;color:#3A2F29}
+ .small{grid-column:1/-1;border-top:1px solid #EDE5DF;padding-top:.12in;font-size:11.5px;color:#556;line-height:1.45}
+ .cut{border-top:2px dashed #aab;margin:.1in 0;text-align:center;font-size:10px;color:#889;height:0}
+ .note{max-width:7.5in;margin:0 auto 16px;font-size:13px;color:#555}
+ @media print{body{background:#fff;padding:0}.note{display:none}.card{break-inside:avoid}}
+ @media (max-width:760px){.page{width:100%}.card{grid-template-columns:1fr;height:auto}.qr{margin:0 auto}}
+</style></head><body>
+<p class="note">Design reference for the printable counter card. The real page renders the QR with the <code>segno</code> library as inline SVG (black on white, high error correction, quiet zone kept) and prints through the browser (“Save as PDF”). Two copies per Letter page.</p>
+<div class="page">
+ <article class="card">
+  <div>
+   <div class="brand"><img src="assets/logo-mark.png" alt="" style="height:44px;width:auto">Green Street Cafe + Pageturner Books</div>
+   <h1>Next door? Take 10% off at Pageturner Books.</h1>
+   <div class="perk">Show the code at the register.</div>
+   <ol><li>Scan this code with your phone camera.</li><li>You get a one-time code.</li><li>Show it at Pageturner Books before Dec 15.</li></ol>
+  </div>
+  <div class="qrwrap"><div class="qr" role="img" aria-label="QR code for the Pageturner Books offer"></div><p>Can't scan? Go to<br><b>shopmates.example/r/K7M2</b></p></div>
+  <div class="small">10% off one purchase for customers of Green Street Cafe, honored by Pageturner Books for the first 30 redemptions, Nov 1 to Dec 15, 2026. One use per code. Codes expire after 24 hours. Staff confirm each code in ShopMates. Agreement #1042.</div>
+ </article>
+ <div class="cut">cut here</div>
+ <article class="card">
+  <div>
+   <div class="brand"><img src="assets/logo-mark.png" alt="" style="height:44px;width:auto">Pageturner Books + Green Street Cafe</div>
+   <h1>Next door? Take 10% off at Green Street Cafe.</h1>
+   <div class="perk">Show the code at the register.</div>
+   <ol><li>Scan this code with your phone camera.</li><li>You get a one-time code.</li><li>Show it at Green Street Cafe before Dec 15.</li></ol>
+  </div>
+  <div class="qrwrap"><div class="qr" role="img" aria-label="QR code for the Green Street Cafe offer"></div><p>Can't scan? Go to<br><b>shopmates.example/r/P4XD</b></p></div>
+  <div class="small">10% off one purchase for customers of Pageturner Books, honored by Green Street Cafe for the first 30 redemptions, Nov 1 to Dec 15, 2026. One use per code. Codes expire after 24 hours. Staff confirm each code in ShopMates. Agreement #1042.</div>
+ </article>
+</div>
+</body></html>

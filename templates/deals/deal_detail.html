@@ -2,96 +2,83 @@
 
 {% block title %}Deal with {{ partner.name }}{% endblock %}
 
-{% block content %}
-  <p><a href="{% url 'deals:inbox' %}">&larr; Inbox</a></p>
-  <div class="section-head">
-    <div>
-      <h1>Deal with {{ partner.name }}</h1>
-      <p><span class="badge badge--{{ deal.status }}">{{ deal.get_status_display }}</span>
-        {% if my_turn %}<strong class="turn">Your move</strong>
-        {% elif deal.is_negotiating %}<span class="muted">Waiting on {{ deal.turn.name }}</span>{% endif %}
-        {% if deal.response_deadline and deal.is_negotiating %}<span class="muted small"> &middot; answer by {{ deal.response_deadline|date:"M j, g:i a" }}</span>{% endif %}
-      </p>
-    </div>
-    <div class="actions">
-      {% if deal.status == 'active' or deal.status == 'completed' %}<a class="btn btn-secondary" href="{% url 'deals:summary' deal.pk %}">Summary</a>{% endif %}
-    </div>
+{# Native design screen (designv2/shell-demo.html #s-deal): Terms, Chat and History tabs, a pinned bar per tab.
+   Buttons the mock does not have but the app does (Edit draft, Withdraw, Show QR, Print card, Summary, Renew) are added in the same ghost style. #}
+{% block screen %}
+<section class="screen active" id="s-deal" data-nav="inbox">
+  <div class="screen-head">
+    <a class="btn back" href="{% url 'deals:inbox' %}"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</a>
+    {% if my_turn %}<span class="badge turn">Your turn</span>{% else %}<span class="badge {{ deal.status_tone }}">{{ deal.get_status_display }}</span>{% endif %}
+  </div>
+  <div>
+    <h1>{{ partner.name }}</h1>
+    <p class="muted sm">{{ deal.get_status_display }}{% if deal.is_negotiating and not my_turn %} &middot; Waiting on {{ deal.turn.name }}{% endif %}{% if deal.response_deadline and deal.is_negotiating %} &middot; answer by {{ deal.response_deadline|date:"M j" }}{% endif %}</p>
+  </div>
+  <div class="seg" role="tablist" data-tabs>
+    <button role="tab" aria-selected="true" data-t="a" data-tab="terms">Terms</button>
+    <button role="tab" aria-selected="false" data-t="b" data-tab="chat">Chat</button>
+    <button role="tab" aria-selected="false" data-t="c" data-tab="history">History</button>
   </div>
 
-  <div class="two-col">
-    <div>
-      <div class="card">
-        <h3>Current terms (version {{ version.number }})</h3>
-        <table class="table">
-          <tr><th>Offer</th><td>{{ version.offer_text }}</td></tr>
-          <tr><th>Discount</th><td>{{ version.discount_percent }}%</td></tr>
-          <tr><th>Cap</th><td>{{ version.redemption_cap }} redemptions per shop</td></tr>
-          <tr><th>Dates</th><td>{{ version.start_date|date:"M j, Y" }} to {{ version.end_date|date:"M j, Y" }}</td></tr>
-          {% if version.terms %}<tr><th>Other terms</th><td>{{ version.terms|linebreaksbr }}</td></tr>{% endif %}
-          <tr><th>Proposed by</th><td>{{ version.created_by_shop.name }}</td></tr>
-        </table>
-
-        <div class="actions">
-          {% if can_send %}
-            <form method="post" action="{% url 'deals:action' deal.pk 'send' %}">{% csrf_token %}<button class="btn" type="submit">Send proposal</button></form>
-          {% endif %}
-          {% if my_turn %}
-            <form method="post" action="{% url 'deals:action' deal.pk 'accept' %}">{% csrf_token %}<button class="btn" type="submit">Accept</button></form>
-            <a class="btn btn-secondary" href="{% url 'deals:counter' deal.pk %}">Counter</a>
-            <form method="post" action="{% url 'deals:action' deal.pk 'decline' %}">{% csrf_token %}<button class="btn btn-danger" type="submit">Decline</button></form>
-          {% endif %}
-          {% if can_withdraw %}
-            <form method="post" action="{% url 'deals:action' deal.pk 'withdraw' %}">{% csrf_token %}<button class="btn btn-secondary" type="submit">Withdraw</button></form>
-          {% endif %}
-        </div>
-      </div>
-
-      {% if qr_svg %}
-        <div class="card">
-          <h3>Your QR code</h3>
-          <p class="muted">Display this at your counter. Customers who scan it get a one-time code to use at {{ partner.name }}.
-            {% if deal.status == 'accepted' %}It starts working on {{ version.start_date|date:"M j" }}.{% endif %}</p>
-          <div class="qr">{{ qr_svg }}</div>
-          <p class="small muted">{{ qr_url }}</p>
-        </div>
-      {% endif %}
-
-      <div class="card">
-        <h3>Messages</h3>
-        {% for m in deal_messages %}
-          <div class="message {% if m.shop_id == my_shop.pk %}message--mine{% endif %}">
-            <div class="small muted">{{ m.shop.name }} &middot; {{ m.created_at|date:"M j, g:i a" }}</div>
-            <div>{{ m.body|linebreaksbr }}</div>
-          </div>
-        {% empty %}<p class="muted">No messages yet.</p>{% endfor %}
-        {% if can_message %}
-          <form method="post" action="{% url 'deals:message' deal.pk %}">
-            {% csrf_token %}
-            <div class="field">{{ message_form.body }}</div>
-            <button class="btn btn-secondary" type="submit">Send message</button>
-          </form>
-        {% endif %}
-      </div>
+  <div class="scroll" data-pane="a">
+    <div class="card"><h3>{{ version.offer_text }}</h3>
+      <dl class="kv" style="margin-top:12px">
+        <dt>Discount</dt><dd>{{ version.discount_percent }}%</dd>
+        <dt>Cap per shop</dt><dd>{{ version.redemption_cap }}</dd>
+        <dt>Dates</dt><dd>{{ version.start_date|date:"M j" }} &ndash; {{ version.end_date|date:"M j" }}</dd>
+        <dt>Proposed by</dt><dd>{{ version.created_by_shop.name }}</dd>
+        {% if version.terms %}<dt>Other terms</dt><dd>{{ version.terms|linebreaksbr }}</dd>{% endif %}
+      </dl>
     </div>
-
-    <div>
-      <div class="card">
-        <h3>Version history</h3>
-        {% for v in versions reversed %}
-          <div class="version">
-            <strong>Version {{ v.number }}</strong> by {{ v.created_by_shop.name }}
-            <div class="small muted">{{ v.created_at|date:"M j, g:i a" }}</div>
-            <div class="small">{{ v.discount_percent }}% &middot; cap {{ v.redemption_cap }} &middot; {{ v.start_date|date:"M j" }} to {{ v.end_date|date:"M j" }}</div>
-          </div>
-        {% endfor %}
-      </div>
-      <div class="card">
-        <h3>Activity</h3>
-        {% for e in events %}
-          <div class="small"><span class="muted">{{ e.created_at|date:"M j, g:i a" }}</span>
-            {{ e.actor.username|default:"System" }} {{ e.action }}{% if e.note %} ({{ e.note }}){% endif %}</div>
-        {% endfor %}
-      </div>
-    </div>
+    {% if qr_url %}
+      <p class="muted sm">Your QR code gives customers a one-time code for {{ partner.name }}.{% if deal.status == 'accepted' %} It starts working on {{ version.start_date|date:"M j" }}.{% endif %}</p>
+      <a class="btn ghost block" href="{% url 'deals:qr' deal.pk %}">Show QR code</a>
+      <a class="btn ghost block" href="{% url 'deals:card' deal.pk %}">Print counter card</a>
+    {% endif %}
+    {% if deal.status == 'active' or deal.status == 'completed' %}<a class="btn ghost block" href="{% url 'deals:summary' deal.pk %}">Summary</a>{% endif %}
+    {% if can_edit %}<a class="btn ghost block" href="{% url 'deals:edit' deal.pk %}">Edit draft</a>{% endif %}
+    {% if can_withdraw %}
+      <form method="post" action="{% url 'deals:action' deal.pk 'withdraw' %}">{% csrf_token %}<button class="btn danger block" type="submit">Withdraw</button></form>
+    {% endif %}
   </div>
+
+  <div class="scroll chat" data-pane="b" hidden>
+    {% for m in deal_messages %}
+      <div class="bubble{% if m.shop_id == my_shop.pk %} me{% endif %}">{{ m.body|linebreaksbr }}<span class="xs" style="display:block;margin-top:4px;color:var(--ink-2)">{{ m.shop.name }} &middot; {{ m.created_at|date:"M j, g:i a" }}</span></div>
+    {% empty %}
+      <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg></div><h2>No messages yet</h2><p class="sm">Say hello, or ask a question about the terms.</p></div>
+    {% endfor %}
+  </div>
+
+  <div class="scroll" data-pane="c" hidden>
+    {% for v in versions reversed %}
+      <div class="row"><div class="grow"><h3>v{{ v.number }} &middot; {{ v.created_by_shop.name }}</h3><p class="muted sm">{{ v.discount_percent }}% &middot; cap {{ v.redemption_cap }} &middot; {{ v.start_date|date:"M j" }} &ndash; {{ v.end_date|date:"M j" }}</p></div><span class="muted sm">{{ v.created_at|date:"M j" }}</span></div>
+    {% endfor %}
+    <p class="muted sm">Activity</p>
+    {% for e in events %}
+      <div class="row"><div class="grow"><h3>{{ e.actor.username|default:"System" }} {{ e.action }}</h3>{% if e.note %}<p class="muted sm">{{ e.note }}</p>{% endif %}</div><span class="muted sm">{{ e.created_at|date:"M j, g:i a" }}</span></div>
+    {% endfor %}
+  </div>
+
+  {% if can_send or my_turn or can_renew %}
+  <div class="actionbar" data-bar="a c">
+    {% if can_send %}
+      <form method="post" action="{% url 'deals:action' deal.pk 'send' %}">{% csrf_token %}<button class="btn" type="submit">Send proposal</button></form>
+    {% endif %}
+    {% if my_turn %}
+      <form method="post" action="{% url 'deals:action' deal.pk 'decline' %}">{% csrf_token %}<button class="btn danger" type="submit">Decline</button></form>
+      <a class="btn ghost" href="{% url 'deals:counter' deal.pk %}">Counter</a>
+      <form method="post" action="{% url 'deals:action' deal.pk 'accept' %}">{% csrf_token %}<button class="btn" type="submit">Accept</button></form>
+    {% endif %}
+    {% if can_renew %}<a class="btn" href="{% url 'deals:new' partner.pk %}?renew={{ deal.pk }}">Renew with a higher cap</a>{% endif %}
+  </div>
+  {% endif %}
+  {% if can_message %}
+  <form class="actionbar" data-bar="b" method="post" action="{% url 'deals:message' deal.pk %}" hidden>
+    {% csrf_token %}
+    <input class="input" name="body" aria-label="Message" placeholder="Write a message" maxlength="1000" required style="flex:1">
+    <button class="btn" style="flex:none" type="submit">Send</button>
+  </form>
+  {% endif %}
+</section>
 {% endblock %}

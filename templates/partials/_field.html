@@ -1,0 +1,7 @@
+{# One design field (designv2 .field): label, control, hint, errors. Needs: field #}
+<div class="field">
+  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {{ field }}
+  {% if field.help_text %}<span class="hint">{{ field.help_text|safe }}</span>{% endif %}
+  {% for error in field.errors %}<span class="err">{{ error }}</span>{% endfor %}
+</div>

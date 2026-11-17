@@ -10,5 +10,6 @@ urlpatterns = [
     path('shop/staff/', views.shop_staff, name='shop_staff'),
     path('shop/staff/<int:pk>/remove/', views.shop_staff_remove, name='shop_staff_remove'),
     path('discover/', views.discover, name='discover'),
+    path('radar/', views.radar, name='radar'),
     path('shops/<int:pk>/', views.shop_detail, name='shop_detail'),
 ]

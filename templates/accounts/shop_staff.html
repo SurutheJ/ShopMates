@@ -2,32 +2,25 @@
 
 {% block title %}Staff{% endblock %}
 
-{% block content %}
-  <div class="card card--medium">
-    <h1>Staff at {{ my_shop.name }}</h1>
-    <p class="muted">Staff can confirm redemptions at the counter. They can not see deals or exports.</p>
-    <table class="table">
-      <thead><tr><th>Person</th><th>Role</th><th></th></tr></thead>
-      <tbody>
-        {% for m in memberships %}
-          <tr>
-            <td>{{ m.user.username }}</td>
-            <td>{{ m.get_role_display }}</td>
-            <td class="right">
-              {% if m.role == 'staff' %}
-                <form method="post" action="{% url 'accounts:shop_staff_remove' m.pk %}">{% csrf_token %}
-                  <button class="linkish" type="submit">Remove</button></form>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <h3>Add staff</h3>
-    <form method="post">
+{% block screen %}
+<section class="screen active narrow" id="s-staff">
+  <div class="screen-head"><a class="btn back" href="{% url 'accounts:shop_edit' %}"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</a></div>
+  <div><h1>Staff</h1><p class="muted sm">Staff at {{ my_shop.name }} can confirm redemptions at the counter. They can not see deals or exports.</p></div>
+  <div class="scroll">
+    {% for m in memberships %}
+      <div class="row">
+        <div class="avatar" aria-hidden="true">{{ m.user.username|slice:":2"|upper }}</div>
+        <div class="grow"><h3>{{ m.user.username }}</h3><p class="muted sm">{{ m.get_role_display }}</p></div>
+        {% if m.role == 'staff' %}
+          <form method="post" action="{% url 'accounts:shop_staff_remove' m.pk %}">{% csrf_token %}<button class="btn danger sm" type="submit">Remove</button></form>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <form method="post" id="staff-form">
       {% csrf_token %}
       {% include "partials/_form_fields.html" %}
-      <button class="btn" type="submit">Add staff member</button>
     </form>
   </div>
+  <div class="actionbar"><button class="btn" type="submit" form="staff-form">Add staff</button></div>
+</section>
 {% endblock %}

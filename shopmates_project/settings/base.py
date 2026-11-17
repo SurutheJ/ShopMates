@@ -68,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'shopmates_project.middleware.ContentSecurityPolicyMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 ]
 
@@ -118,6 +119,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
 
 # ---------------------------------------------------------------------------
+# Cache. The rate limiter (deals/throttle.py) counts in this cache. The default
+# local-memory cache is per process, so with several workers each would count
+# separately and a restart would reset every count. The database cache is
+# shared by all workers. Create its table once per database:
+#     python manage.py createcachetable
+# ---------------------------------------------------------------------------
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Authentication (django-allauth)
 # ---------------------------------------------------------------------------
 AUTHENTICATION_BACKENDS = [
@@ -126,6 +141,9 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 SITE_ID = 1
+# Public address of the site, e.g. https://<user>.pythonanywhere.com . Used for QR links.
+# Empty means: build links from the request's own host.
+SITE_URL = get_env('SITE_URL', default='')
 
 LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = 'home'
@@ -177,13 +195,50 @@ REDEMPTION_CAP_MAX = env_int('REDEMPTION_CAP_MAX', 1000)
 DEAL_MAX_DAYS = env_int('DEAL_MAX_DAYS', 365)
 VOUCHER_TTL_HOURS = env_int('VOUCHER_TTL_HOURS', 24)
 VOUCHER_ISSUE_LIMIT_PER_HOUR = env_int('VOUCHER_ISSUE_LIMIT_PER_HOUR', 10)  # per IP
+REDEEM_LIMIT_PER_HOUR = env_int('REDEEM_LIMIT_PER_HOUR', 60)  # confirm attempts per user
 STATS_MIN_GROUP = env_int('STATS_MIN_GROUP', 5)  # hide stats groups with fewer shops
 
 # ---------------------------------------------------------------------------
 # AI assistant (hosted LLM, called server-side only). Optional: with no key the
 # app uses a rule-based fallback. Provider and model are unverified defaults.
 # ---------------------------------------------------------------------------
-LLM_API_KEY = get_env('LLM_API_KEY', default='')
-LLM_MODEL = get_env('LLM_MODEL', default='gemini-2.5-flash')
-LLM_TIMEOUT_SECONDS = env_int('LLM_TIMEOUT_SECONDS', 15)
+AI_API_KEY = get_env('AI_API_KEY', default='')
+AI_API_MODEL = get_env('AI_API_MODEL', default='gemini-3.1-flash-lite')
+AI_API_BASE_URL = get_env('AI_API_BASE_URL', default='https://generativelanguage.googleapis.com/v1beta/openai/')
+AI_TIMEOUT_SECONDS = env_int('AI_TIMEOUT_SECONDS', 15)
 AI_DRAFT_LIMIT_PER_HOUR = env_int('AI_DRAFT_LIMIT_PER_HOUR', 10)  # per user
+
+# Deal Radar: also list nearby shops from OpenStreetMap (one cached Overpass request).
+# False means the radar page makes no outside call and shows ShopMates shops only.
+RADAR_OSM_ENABLED = env_bool('RADAR_OSM_ENABLED', True)
+
+# ---------------------------------------------------------------------------
+# Logging. Console for the dev server and the host's log viewer, plus a rotating
+# file so errors do not vanish. The 'ai' logger records why a feature used its
+# fallback (the reason text only, never prompts, questions or shop data).
+# ---------------------------------------------------------------------------
+LOG_DIR = Path(get_env('LOG_DIR', default=str(BASE_DIR / 'logs')))
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'plain': {'format': '{asctime} {levelname} {name}: {message}', 'style': '{'},
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'plain'},
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': str(LOG_DIR / 'shopmates.log'),
+            'maxBytes': 1_000_000,
+            'backupCount': 3,
+            'formatter': 'plain',
+        },
+    },
+    'loggers': {
+        'ai': {'handlers': ['console', 'file'], 'level': 'INFO', 'propagate': False},
+        # Unhandled server errors (500s). Warnings such as 404s stay out of the file.
+        'django': {'handlers': ['console', 'file'], 'level': 'ERROR'},
+    },
+}

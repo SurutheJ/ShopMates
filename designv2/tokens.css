@@ -1,0 +1,43 @@
+/* ShopMates design tokens, v2 "Light Coral" (the canvas board palette). White page, warm sand surfaces, near-black
+   primary buttons, coral as the accent (tiles, active nav, "your turn"). Never white text on coral: use ink.
+   Logo files in assets/ carry their own colours. Copy into static/css/tokens.css. */
+:root {
+  /* Brand */
+  --coral: #FF7A59;       --coral-press: #FF9275;   --coral-soft: #FFE9E1;  --coral-ink: #B5391A;  /* coral-ink = coral as TEXT */
+  --teal: #15803D;        --teal-press: #116B33;    --teal-soft: #DCFCE7;   --teal-ink: #166534;
+  --sun: #F5A81C;         --sun-soft: #FFEFC9;      --sun-ink: #7A4A00;
+  /* Neutrals (warm) */
+  --ink: #1A1410;         --ink-2: #3A2F29;         --muted: #6A5C54;
+  --bg: #FFFFFF;          --surface: #FFFFFF;       --sand: #F7F2EE;        --line: #EDE5DF;
+  /* Status */
+  --danger: #B42318;      --danger-soft: #FEE4E2;
+  /* Semantic names used by components */
+  --primary: var(--ink);  --primary-press: var(--ink-2);  --on-primary: #fff;
+  --primary-soft: var(--coral-soft);
+  --good: var(--teal);      --good-soft: var(--teal-soft);        --good-ink: var(--teal-ink);
+  --warn: var(--sun-ink);   --warn-soft: var(--sun-soft);
+  /* Category tints (cafe, bookstore, ...): bg + text pairs, each 5.9:1 or better. Use with .cat--<value> */
+  --cat-cafe-bg: #FDE8C4;       --cat-cafe-fg: #92400E;
+  --cat-bookstore-bg: #DBEAFE;  --cat-bookstore-fg: #1E40AF;
+  --cat-bakery-bg: #FCE7F3;     --cat-bakery-fg: #9D174D;
+  --cat-restaurant-bg: #FEE2E2; --cat-restaurant-fg: #991B1B;
+  --cat-flowers-bg: #F3E8FF;    --cat-flowers-fg: #6B21A8;
+  --cat-fitness-bg: #DCFCE7;    --cat-fitness-fg: #166534;
+  --cat-salon-bg: #FFE4E6;      --cat-salon-fg: #9F1239;
+  --cat-retail-bg: #E0F2FE;     --cat-retail-fg: #075985;
+  --cat-other-bg: #E7E5E4;      --cat-other-fg: #44403C;
+  /* Type: Plus Jakarta Sans if the app loads it, else the system stack (nothing is required to download). */
+  --font: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 20px; --fs-xl: 28px; --fs-2xl: 38px; --fs-stat: 40px;
+  /* Space (4px grid) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px;
+  /* Shape: bigger radii than v1, flat surfaces, one soft shadow */
+  --r-sm: 12px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px; --r-pill: 999px;
+  --shadow: 0 1px 2px rgba(26,20,16,.04), 0 8px 24px rgba(26,20,16,.06);
+  --shadow-lg: 0 2px 4px rgba(26,20,16,.06), 0 18px 40px rgba(26,20,16,.16);
+  /* Layout */
+  --topbar-h: 60px; --bottomnav-h: 88px; --rail-w: 92px; --rail-w-wide: 248px;
+  --tap: 44px;
+  --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
+  /* Breakpoints: sm 480, md 768, lg 1100 */
+}

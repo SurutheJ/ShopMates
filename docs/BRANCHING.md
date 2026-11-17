@@ -31,7 +31,7 @@ the window, the cap is reached, or the code was already used.
 - `.env` or any file with keys, tokens, or passwords
 - `db.sqlite3`
 - Model weights or large binaries
-- Local tool folders (`.idea/`, `.claude/`)
+- Editor folders such as `.idea/`
 
 Stage files by name, not with `git add .`, and check `git status` before committing.
 

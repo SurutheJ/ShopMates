@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 
 from accounts.models import Shop
@@ -56,7 +57,15 @@ class Deal(models.Model):
         return reverse('deals:detail', kwargs={'pk': self.pk})
 
     def is_party(self, shop):
-        return shop is not None and shop.pk in (self.proposer_id, self.recipient_id)
+        """The recipient only counts once the deal has been sent: a draft is private to its proposer."""
+        if shop is None:
+            return False
+        return shop.pk == self.proposer_id or (shop.pk == self.recipient_id and self.status != self.Status.DRAFT)
+
+    @classmethod
+    def visible_to(cls, shop):
+        """Deals a shop may list: its own, and those sent to it (never someone else's unsent draft)."""
+        return cls.objects.filter(Q(proposer=shop) | (Q(recipient=shop) & ~Q(status=cls.Status.DRAFT)))
 
     def partner_of(self, shop):
         return self.recipient if shop.pk == self.proposer_id else self.proposer
@@ -67,11 +76,29 @@ class Deal(models.Model):
 
     @property
     def current_version(self):
+        # A list page can prefetch_related('versions') to avoid one query per deal.
+        prefetched = getattr(self, '_prefetched_objects_cache', {}).get('versions')
+        if prefetched is not None:
+            return max(prefetched, key=lambda v: v.number, default=None)
         return self.versions.order_by('-number').first()
 
     @property
     def is_negotiating(self):
         return self.status in self.OPEN_NEGOTIATION
+
+    @property
+    def status_tone(self):
+        """Badge colour class for the status: ok, warn, bad, draft, or '' for a plain badge."""
+        S = self.Status
+        if self.status in (S.ACTIVE, S.ACCEPTED):
+            return 'ok'
+        if self.status in self.OPEN_NEGOTIATION:
+            return 'warn'
+        if self.status == S.DRAFT:
+            return 'draft'
+        if self.status in (S.DECLINED, S.EXPIRED):
+            return 'bad'
+        return ''
 
 
 class DealVersion(models.Model):

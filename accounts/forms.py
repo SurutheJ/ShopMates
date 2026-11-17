@@ -7,11 +7,17 @@ from .models import Shop, ShopMembership
 class ShopForm(forms.ModelForm):
     class Meta:
         model = Shop
-        fields = ['name', 'category', 'address', 'city', 'hours', 'typical_order_value', 'latitude', 'longitude']
+        fields = ['name', 'category', 'address', 'city', 'hours', 'description', 'typical_order_value',
+                  'margin_pct', 'latitude', 'longitude']
         help_texts = {
             'latitude': 'Optional. Lets other shops see how far away you are.',
             'longitude': 'Optional.',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'input'   # the designv2 field style; these screens are outside .legacy
 
     def clean(self):
         cleaned = super().clean()
@@ -34,6 +40,7 @@ class StaffAddForm(forms.Form):
     def __init__(self, *args, shop=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.shop = shop
+        self.fields['identifier'].widget.attrs['class'] = 'input'
 
     def clean_identifier(self):
         value = self.cleaned_data['identifier'].strip()

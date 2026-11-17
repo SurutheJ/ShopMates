@@ -29,6 +29,13 @@
     <p class="muted">{{ summary.total }} redemption{{ summary.total|pluralize }} in total. Cost = redemptions honored x discount x the shop's typical spend.</p>
   </div>
 
+  {% if chart_svg %}
+    <div class="card">
+      <h3>Customers sent per day</h3>
+      {{ chart_svg }}
+    </div>
+  {% endif %}
+
   <div class="card">
     <h3>Is it fair?</h3>
     {% if summary.lopsided %}
@@ -40,7 +47,24 @@
     {% endif %}
   </div>
 
-  {% if qr_svg %}
-    <div class="card"><h3>Your QR code</h3><div class="qr">{{ qr_svg }}</div></div>
+  <div class="card" id="coach">
+    <h3>Deal coach</h3>
+    <p class="muted">Explains the numbers above in plain English and suggests renewal terms. The numbers are computed by the app; the AI only words them.</p>
+    <p><button type="button" id="coach-btn" class="btn btn-secondary" data-url="{% url 'deals:coach' deal.pk %}" data-csrf="{{ csrf_token }}">Explain this deal</button>
+       <span id="coach-status" class="muted small"></span></p>
+    <div id="coach-out" hidden>
+      <p id="coach-text" class="coach-text"></p>
+      <p class="muted small" id="coach-source"></p>
+    </div>
+    <h4>Suggested renewal</h4>
+    <table class="table">
+      <tr><th>Discount</th><td>{{ renewal.discount_percent }}%</td></tr>
+      <tr><th>Cap per shop</th><td>{{ renewal.redemption_cap }}</td></tr>
+      <tr><th>Length</th><td>{{ renewal.duration_days }} days</td></tr>
+      {% if renewal.perk %}<tr><th>Perk</th><td>{{ renewal.perk }}</td></tr>{% endif %}
+    </table>
+  </div>
+  {% if qr_url %}
+    <div class="card"><h3>Your QR code</h3><div class="actions"><a class="btn" href="{% url 'deals:qr' deal.pk %}">Show QR code</a> <a class="btn btn-secondary" href="{% url 'deals:card' deal.pk %}">Print counter card</a></div></div>
   {% endif %}
 {% endblock %}

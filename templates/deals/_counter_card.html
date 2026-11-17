@@ -1,0 +1,17 @@
+<article class="counter-card{% if copy %} copy{% endif %}">
+  <div class="cc-text">
+    <div class="cc-brand">{{ my_shop.name }} + {{ partner.name }}</div>
+    <h1>Next door? Take {{ version.discount_percent }}% off at {{ partner.name }}.</h1>
+    <div class="cc-perk">Show the code at the register.</div>
+    <ol>
+      <li>Scan this code with your phone camera.</li>
+      <li>You get a one-time code.</li>
+      <li>Show it at {{ partner.name }} before {{ version.end_date|date:"M j" }}.</li>
+    </ol>
+  </div>
+  <div class="cc-qr">
+    <div class="cc-code" role="img" aria-label="QR code for the {{ partner.name }} offer">{{ qr_svg }}</div>
+    <p>Can't scan? Go to<br><b>{{ link_text }}</b></p>
+  </div>
+  <div class="cc-small">{{ version.offer_text }} for customers of {{ my_shop.name }}, honored by {{ partner.name }} for the first {{ version.redemption_cap }} redemptions, {{ version.start_date|date:"M j" }} to {{ version.end_date|date:"M j, Y" }}. One use per code. Codes expire after {{ ttl_hours }} hours. Staff confirm each code in ShopMates. Deal #{{ deal.pk }}.</div>
+</article>

@@ -30,6 +30,13 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+SECURE_REFERRER_POLICY = 'same-origin'
+# HSTS tells browsers to use https only. Start at one hour: a wrong setting is
+# remembered by every browser that saw it for this long. Raise it once the live
+# site has worked over https for a while. No preload, no subdomains.
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '3600'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
 
 # Content-hashed static filenames (cache busting). Uses STORAGES, not the legacy
 # STATICFILES_STORAGE name, which newer Django ignores. Run collectstatic with

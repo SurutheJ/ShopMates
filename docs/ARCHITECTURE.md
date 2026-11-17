@@ -1,6 +1,6 @@
 # Architecture
 
-Status: implemented as described, except where marked as not built.
+Implemented as described, except where marked as not built.
 
 ## Shape: one Django monolith
 
@@ -15,7 +15,9 @@ shopmates/
   ai/
     client.py               the ONLY file that talks to the LLM provider
     prompts.py              prompt templates
-    services.py             draft_deal(), suggest_counter(), explain_balance(), playbook_answer()
+    services.py             draft_deal(), explain_balance(), answer_playbook()
+    matching.py, radar.py   match score and Deal Radar ranking (no model)
+    hours.py, osm.py        opening-hours parser, OpenStreetMap lookup with a 7-day cache
   templates/                base.html, partials
   static/                   css, js
   docs/
@@ -40,7 +42,8 @@ erDiagram
 | Model | Key fields | Notes |
 |---|---|---|
 | `User` | extends `AbstractUser` | Custom user model from day one |
-| `Shop` | name, category, address, city, hours, typical_order_value, optional latitude/longitude, status | pending, approved, suspended. Dev auto-approves; prod needs an admin |
+| `Shop` | name, category, address, city, hours, description, typical_order_value, margin_pct, optional latitude/longitude, status | pending, approved, suspended. Dev auto-approves; prod needs an admin. Margin empty means 50% and is marked "assumed" |
+| `OsmQueryCache` | key, payload, fetched_at | Cached OpenStreetMap answers for Radar, 7 days |
 | `ShopMembership` | user, shop, role (owner/staff) | MVP: one shop per user |
 | `Deal` | proposer, recipient, status, turn, response_deadline, proposer_token, recipient_token | Two UUID tokens, one per shop's QR code |
 | `DealVersion` | deal, number, offer_text, discount_percent, redemption_cap, start_date, end_date, terms, created_by_shop | Newest number is current; one set of terms applies both ways |
@@ -66,6 +69,8 @@ Where the rules live: `deals/services.py` holds every state change, voucher issu
 | `GET /api/stats/` | Public | Anonymized aggregates, for example average redemption rate by shop category. Hide any group with fewer than 5 shops (P5). No shop names or addresses. |
 | `GET /api/deals/` | Login, own shops only | The caller's deals |
 | `GET /api/deals/<id>/redemptions/` | Login, party to the deal | Redemptions with timestamps, no customer data |
+| `POST /deals/fairness/<shop id>/` | Login, owner | Fairness estimate for the proposal form |
+| `GET /healthz/` | Public | `{"status": "ok"}` or 503 |
 
 Protected APIs return 401 JSON (not an HTML redirect) when logged out.
 
@@ -88,8 +93,9 @@ CSV and JSON of a deal's redemptions and summary, for the parties to that deal. 
 | Service | Use | Risk |
 |---|---|---|
 | Google OAuth | Sign-in | Needs both localhost and production redirect URIs |
-| LLM API (provider open) | Drafting, counters, explanations | Free-tier limits and host reachability unverified |
-| Geocoding API (free, keyless) | **Not built.** Owners can enter latitude and longitude by hand; discover sorts by distance when both shops have them | Add later; reachability from the host is unverified |
+| Gemini API | Drafting, deal explanation, playbook answers | Free-tier rate limit (we saw HTTP 429); host reachability unverified |
+| OpenStreetMap (Overpass, tiles) | Radar lists nearby places and shows the map | Host reachability unverified; only rounded coordinates are sent |
+| Address lookup | **Not built.** Owners enter latitude and longitude by hand | To do |
 
 ## Testing approach
 

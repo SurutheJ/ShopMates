@@ -12,7 +12,7 @@ class DealTermsForm(forms.Form):
     """
 
     offer_text = forms.CharField(
-        label='Offer', max_length=200,
+        label='Offer', max_length=200, widget=forms.Textarea(attrs={'rows': 3}),
         help_text='What a referred customer gets, for example "10% off any drink".')
     discount_percent = forms.IntegerField(label='Discount (%)', min_value=1)
     redemption_cap = forms.IntegerField(
@@ -21,6 +21,15 @@ class DealTermsForm(forms.Form):
     start_date = forms.DateField(label='Start date', widget=forms.DateInput(attrs={'type': 'date'}))
     end_date = forms.DateField(label='End date', widget=forms.DateInput(attrs={'type': 'date'}))
     terms = forms.CharField(label='Other terms', required=False, widget=forms.Textarea(attrs={'rows': 3}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'input'   # designv2 .input
+
+    def clean_offer_text(self):
+        # A text area lets people press Enter; the offer is shown as one line everywhere, so store it as one.
+        return ' '.join(self.cleaned_data['offer_text'].split())
 
     def clean_discount_percent(self):
         value = self.cleaned_data['discount_percent']
@@ -55,4 +64,4 @@ class MessageForm(forms.Form):
 class RedeemForm(forms.Form):
     code = forms.CharField(
         max_length=20, label='Customer code',
-        widget=forms.TextInput(attrs={'autocomplete': 'off', 'autocapitalize': 'characters'}))
+        widget=forms.TextInput(attrs={'class': 'input code big', 'autocomplete': 'off', 'autocapitalize': 'characters'}))

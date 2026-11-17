@@ -7,6 +7,8 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
+from shopmates_project.links import absolute_url
+
 from .models import Shop, ShopMembership
 
 
@@ -64,7 +66,7 @@ def api_login_required(view):
         if not request.user.is_authenticated:
             return JsonResponse(
                 {'error': 'Authentication required. Log in to use this API.',
-                 'login_url': request.build_absolute_uri(reverse('account_login'))},
+                 'login_url': absolute_url(request, reverse('account_login'))},
                 status=401,
             )
         return view(request, *args, **kwargs)

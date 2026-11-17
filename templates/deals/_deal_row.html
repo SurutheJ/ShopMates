@@ -1,14 +1,11 @@
-<a class="row" href="{{ deal.get_absolute_url }}">
-  <div>
-    <strong>{{ deal.partner.name }}</strong>
-    <div class="muted">{{ deal.version.offer_text }}</div>
+{% comment %}One deal as a design row (designv2 .row). Needs: deal (with .partner and .version set by the view), is_owner, my_shop.{% endcomment %}
+{% with turn=deal.is_negotiating %}
+{% if is_owner %}<a class="row{% if turn and deal.turn_id == my_shop.pk %} turn{% endif %}" href="{{ deal.get_absolute_url }}">{% else %}<div class="row">{% endif %}
+  <span class="avatar cat--{{ deal.partner.category }}" aria-hidden="true">{{ deal.partner.initials }}</span>
+  <div class="grow">
+    <h3>{{ deal.partner.name }}</h3>
+    <p class="muted sm">{% if turn and deal.turn_id == my_shop.pk %}{{ deal.version.offer_text }} &middot; {{ deal.version.discount_percent }}%{% elif turn %}{% if deal.status == 'countered' %}Counter{% else %}Proposal{% endif %} sent &middot; waiting on them{% elif deal.status == 'active' %}Ends {{ deal.version.end_date|date:"M j" }}{% elif deal.status == 'accepted' %}Starts {{ deal.version.start_date|date:"M j" }}{% else %}{{ deal.version.offer_text }}{% endif %}</p>
   </div>
-  <div class="right">
-    <span class="badge badge--{{ deal.status }}">{{ deal.get_status_display }}</span>
-    {% if deal.response_deadline and deal.status == 'proposed' or deal.response_deadline and deal.status == 'countered' %}
-      <div class="muted small">Answer by {{ deal.response_deadline|date:"M j" }}</div>
-    {% elif deal.status == 'active' or deal.status == 'accepted' %}
-      <div class="muted small">{{ deal.version.start_date|date:"M j" }} to {{ deal.version.end_date|date:"M j" }}</div>
-    {% endif %}
-  </div>
-</a>
+  <span class="badge {% if turn and deal.turn_id == my_shop.pk %}turn{% else %}{{ deal.status_tone }}{% endif %}">{{ deal.get_status_display }}</span>
+{% if is_owner %}</a>{% else %}</div>{% endif %}
+{% endwith %}

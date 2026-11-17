@@ -1,0 +1,30 @@
+{
+  "frozen_on": "2026-11-16",
+  "note": "Held-out set. Written before the synonym fix was designed. Do not tune against it.",
+  "cases": [
+    {
+      "question": "which kinds of shops work well together",
+      "expected": "reciprocal-discount"
+    },
+    {
+      "question": "what happens when the florist charges more than the bakery",
+      "expected": "bakery-flowers"
+    },
+    {
+      "question": "how long should a promotion run",
+      "expected": "caps-and-dates"
+    },
+    {
+      "question": "should the yoga studio team up with a juice bar",
+      "expected": "cafe-fitness"
+    },
+    {
+      "question": "one of us is paying way more in discounts",
+      "expected": "lopsided-deals"
+    },
+    {
+      "question": "how do we train our cashier on the codes",
+      "expected": "staff-training"
+    }
+  ]
+}

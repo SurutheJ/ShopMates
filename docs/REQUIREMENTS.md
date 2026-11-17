@@ -1,38 +1,17 @@
-# Assignment requirements checklist
+# First-draft checklist (P2-A3)
 
-**Status: waiting for the deliverables list.** The instructor's requirements for this project have not been added yet. Paste them here, then fill the mapping table.
+| Requirement | Where | Status |
+|---|---|---|
+| 1. Updated product scope (1 page) | [UPDATED_PRODUCT_SCOPE.md](UPDATED_PRODUCT_SCOPE.md) | Done |
+| 2. Functional Django project | `manage.py`, `shopmates_project/` | Done |
+| At least one app | `accounts`, `deals`, `ai` | Done |
+| At least two models | 10 models; `Shop`, `Deal`, `DealVersion`, `Voucher`, `Redemption` and others | Done |
+| At least one relationship | `Deal.proposer` and `Deal.recipient` to `Shop`; `DealVersion.deal`; `Redemption.voucher` (one-to-one) | Done |
+| Working views and templates | `deals/views.py`, `accounts/views.py`, `templates/` | Done |
+| At least one form | Proposal and counter form (`deals/forms.py`), shop form, redeem form | Done |
+| One database-backed workflow | Propose, accept, activate, redeem, see it counted on the summary; covered in `deals/tests/test_lifecycle.py` and `test_redemption.py` | Done |
+| 3. Initial AI implementation | [INITIAL_AI_IMPLEMENTATION.md](INITIAL_AI_IMPLEMENTATION.md), [../README_AI.md](../README_AI.md) | Done |
+| 4. Progress and roadmap table | [ROADMAP.md](ROADMAP.md) | Done |
+| 5. GitHub push with README | [../README.md](../README.md) has install and run steps | Pushed by the team |
 
-## How to use this file
-
-1. Paste the instructor's deliverables verbatim under "Official requirements".
-2. For each one, fill in the screen or feature that satisfies it, its status, and the evidence (screenshot, test, URL).
-3. Do not mark anything done until it has been run and checked.
-
-## Official requirements
-
-(paste here)
-
-## Mapping
-
-| Requirement | Shopmates feature or screen | Status | Evidence |
-|---|---|---|---|
-| | | | |
-
-## Patterns from the previous project (reference only, may not apply)
-
-These came up in earlier coursework. They are listed to help plan, not as this project's requirements.
-
-| Pattern | Natural fit in Shopmates |
-|---|---|
-| Models, ORM queries, aggregations | Deals, versions, redemptions; sent vs received counts |
-| Forms with POST and CSRF | Proposal and counter forms, redeem form |
-| Search with GET filters | Discover shops by category and distance |
-| Public and protected APIs | Anonymized stats (public); own-deal data (login) |
-| CSV and JSON export with timestamped filenames | Deal summary export |
-| Charts (server-side or Vega-Lite) | Redemptions over time, sent vs received |
-| Static files and styling | Base stylesheet; hashed static files in prod |
-| External keyless API | Geocoding for distance |
-| Authentication and Google OAuth | Owners and staff sign in with Google |
-| Hosted LLM integration | AI drafting and explanations |
-| Individual production deployment | Each member's own PythonAnywhere site |
-| Screenshots and README per section | Keep `docs/screenshots/` and README sections current |
+Checked on the final commit of this branch: `python manage.py check` reports no issues, `makemigrations --check` reports no changes, and `python manage.py test` runs 479 tests, all passing.

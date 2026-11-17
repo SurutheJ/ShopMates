@@ -14,16 +14,17 @@
 
   <div class="card">
     <h3>By shop category</h3>
-    <table class="table">
-      <thead><tr><th>Category</th><th class="right">Shops</th><th class="right">Deals</th><th class="right">Redemptions</th><th class="right">Per shop</th></tr></thead>
-      <tbody>
-        {% for g in stats.by_category %}
-          <tr><td>{{ g.category }}</td><td class="right">{{ g.shops }}</td><td class="right">{{ g.deals }}</td><td class="right">{{ g.redemptions }}</td><td class="right">{{ g.redemptions_per_shop }}</td></tr>
-        {% empty %}
-          <tr><td colspan="5" class="muted">Not enough shops in any category yet to show a breakdown.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    {% for g in stats.by_category %}
+      <h4>{{ g.category }}</h4>
+      <dl class="kv">
+        <dt>Shops</dt><dd>{{ g.shops }}</dd>
+        <dt>Deals</dt><dd>{{ g.deals }}</dd>
+        <dt>Redemptions</dt><dd>{{ g.redemptions }}</dd>
+        <dt>Per shop</dt><dd>{{ g.redemptions_per_shop }}</dd>
+      </dl>
+    {% empty %}
+      <p class="muted">Not enough shops in any category yet to show a breakdown.</p>
+    {% endfor %}
     {% if stats.hidden_categories %}<p class="muted small">{{ stats.hidden_categories }} categor{{ stats.hidden_categories|pluralize:"y,ies" }} hidden for privacy.</p>{% endif %}
   </div>
 {% endblock %}

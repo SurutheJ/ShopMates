@@ -2,13 +2,13 @@
 
 {% block title %}Your code{% endblock %}
 
-{% block nav %}
-  <header class="topnav"><span class="logo">shopmates</span></header>
-{% endblock %}
+{% block app_class %} bare{% endblock %}
+{% block topbar_actions %}{% endblock %}
 
 {% block content %}
   <div class="card card--narrow center">
-    <p class="muted">Your code for {{ voucher.honoring_shop.name }}</p>
+    <h1>Your code</h1>
+    <p class="muted">for {{ voucher.honoring_shop.name }}</p>
     {% if used %}
       <div class="code code--dead">{{ voucher.code }}</div>
       <p class="notice">This code was already used.</p>

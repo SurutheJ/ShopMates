@@ -1,0 +1,34 @@
+{
+  "label": "after_badge_run2",
+  "run_at": "2026-11-16T13:26:44",
+  "users": 20,
+  "rounds": 5,
+  "wall_seconds": 2.6,
+  "server": "django dev server, DEBUG on, SQLite, LLM fallback",
+  "pages": {
+    "inbox": {
+      "n": 100,
+      "errors": 0,
+      "median_ms": 99.6,
+      "p95_ms": 145.3
+    },
+    "discover": {
+      "n": 100,
+      "errors": 0,
+      "median_ms": 96.5,
+      "p95_ms": 150.9
+    },
+    "summary": {
+      "n": 100,
+      "errors": 0,
+      "median_ms": 197.4,
+      "p95_ms": 281.0
+    },
+    "playbook": {
+      "n": 100,
+      "errors": 0,
+      "median_ms": 100.7,
+      "p95_ms": 160.2
+    }
+  }
+}

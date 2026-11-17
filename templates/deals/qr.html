@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}QR code for {{ my_shop.name }}{% endblock %}
+
+{% block screen %}
+<section class="screen active">
+  <div class="scroll qr-page">
+    <a class="btn ghost" href="{{ deal.get_absolute_url }}">&larr; Back to deal</a>
+    <h1>{{ my_shop.name }}</h1>
+    <div class="qr-live" role="img" aria-label="QR code for {{ my_shop.name }}">{{ qr_svg }}</div>
+    <p class="qr-caption">Customers scan this to get a one-time code for <b>{{ partner.name }}</b>.</p>
+    <p class="qr-gives">{{ version.discount_percent }}% off</p>
+    <p class="qr-offer">{{ version.offer_text }}</p>
+    <p class="muted sm qr-valid">
+      {% if deal.status == 'accepted' %}Starts working on {{ version.start_date|date:"M j" }}.{% else %}Works until {{ version.end_date|date:"M j" }}.{% endif %}
+    </p>
+    <button class="btn ghost sm" type="button" data-copy="{{ qr_url }}" data-copy-status="qr-copy-status">Copy link</button>
+    <p id="qr-copy-status" class="muted sm" role="status"></p>
+    <input class="qr-link" type="text" readonly hidden data-copy-fallback value="{{ qr_url }}" aria-label="Link to your QR code">
+  </div>
+  <div class="actionbar qr-actions">
+    <a class="btn" href="{% url 'deals:qr_png' deal.pk %}" download>PNG</a>
+    <a class="btn ghost" href="{% url 'deals:qr_svg' deal.pk %}" download>SVG</a>
+    <a class="btn ghost" href="{% url 'deals:qr_pdf' deal.pk %}" download>PDF</a>
+  </div>
+</section>
+{% endblock %}

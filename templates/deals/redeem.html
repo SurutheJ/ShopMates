@@ -2,25 +2,32 @@
 
 {% block title %}Redeem{% endblock %}
 
-{% block content %}
-  <div class="card card--narrow">
-    <h1>Confirm a customer</h1>
-    <p class="muted">Enter the code on the customer's phone.</p>
-    <form method="post">
-      {% csrf_token %}
-      {% include "partials/_form_fields.html" %}
-      <button class="btn btn-block" type="submit">Confirm</button>
-    </form>
+{# designv2 "redeem" screen. Results (valid, used, not found) arrive as the toast after the redirect. Scan QR has no camera feature yet, so it says so. #}
+{% block screen %}
+<section class="screen active" id="s-redeem">
+  <div><h1>Confirm a customer</h1><p class="muted sm">{{ my_shop.name }} &middot; {{ my_membership.get_role_display|lower }}</p></div>
+  <form method="post" id="redeem-form">
+    {% csrf_token %}
+    <div class="field">
+      <label for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+      {{ form.code }}
+      <span class="hint">Enter the code on the customer's phone.</span>
+      {% for error in form.code.errors %}<div class="error">{{ error }}</div>{% endfor %}
+    </div>
+  </form>
+  <div class="scroll">
+    {% if recent %}
+      <p class="muted sm">Recent</p>
+      {% for r in recent %}
+        <div class="row"><div class="grow"><b>Sent by {{ r.voucher.referring_shop.name }}</b><p class="muted sm">{{ r.confirmed_at|date:"M j, g:i a" }}</p></div></div>
+      {% endfor %}
+    {% else %}
+      <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg></div><h2>No confirmations yet</h2><p class="sm">Codes you confirm at {{ my_shop.name }} show up here.</p></div>
+    {% endif %}
   </div>
-
-  <div class="card">
-    <h3>Recently confirmed at {{ my_shop.name }}</h3>
-    <table class="table">
-      <tbody>
-        {% for r in recent %}
-          <tr><td>{{ r.confirmed_at|date:"M j, g:i a" }}</td><td>Sent by {{ r.voucher.referring_shop.name }}</td></tr>
-        {% empty %}<tr><td class="muted">Nothing yet.</td></tr>{% endfor %}
-      </tbody>
-    </table>
+  <div class="actionbar">
+    <button class="btn ghost" type="button" data-soon="Camera scan">Scan QR</button>
+    <button class="btn big" type="submit" form="redeem-form">Confirm</button>
   </div>
+</section>
 {% endblock %}

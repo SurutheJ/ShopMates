@@ -2,30 +2,55 @@
 
 {% block title %}Discover{% endblock %}
 
-{% block content %}
-  <h1>Find a neighbor</h1>
-  <form method="get" class="filters">
-    <input type="search" name="q" value="{{ q }}" placeholder="Search by name or street">
-    <select name="category">
-      <option value="">All categories</option>
-      {% for value, label in categories %}
-        <option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
-    <button class="btn" type="submit">Search</button>
+{# Native design screen (designv2/shell-demo.html #s-discover). Filters live in the URL: chips are links, the sort sheet and the search box are GET forms. #}
+{% block screen %}
+<section class="screen active" id="s-discover">
+  <div class="screen-head">
+    <div><h1>Find a neighbor</h1><p class="muted sm">Ranked by fit, distance and spend</p></div>
+    <div class="head-actions"><a class="icon-btn" href="{% url 'accounts:radar' %}" aria-label="Deal Radar" title="Deal Radar"><svg class="i" aria-hidden="true"><use href="#i-radar"/></svg></a> <button class="btn ghost sm" type="button" data-sheet="sheet-sort">Sort</button></div>
+  </div>
+  {% if not can_propose %}<div class="banner" role="status">Your shop is waiting for approval. You can browse, but not propose deals yet.</div>{% endif %}
+  <form method="get" role="search">
+    <input class="input" type="search" name="q" value="{{ q }}" placeholder="Search name or street" aria-label="Search">
+    <input type="hidden" name="category" value="{{ category }}">
+    <input type="hidden" name="sort" value="{{ sort }}">
   </form>
+  <div class="chips" role="group" aria-label="Category">
+    <a class="chip" href="?category=&amp;q={{ q|urlencode }}&amp;sort={{ sort|urlencode }}"{% if not category %} aria-current="true"{% endif %}>All</a>
+    {% for value, label in categories %}<a class="chip" href="?category={{ value }}&amp;q={{ q|urlencode }}&amp;sort={{ sort|urlencode }}"{% if value == category %} aria-current="true"{% endif %}>{{ label }}</a>{% endfor %}
+  </div>
 
-  {% if not can_propose %}<p class="notice">Your shop is waiting for approval. You can browse, but not propose deals yet.</p>{% endif %}
-
-  <div class="grid">
+  <div class="scroll cols-2 discover">
     {% for r in results %}
-      <a class="card card--link" href="{{ r.shop.get_absolute_url }}">
-        <h3>{{ r.shop.name }}</h3>
-        <p class="muted">{{ r.shop.get_category_display }} &middot; {{ r.shop.address }}</p>
-        {% if r.distance is not None %}<p class="muted">{{ r.distance|floatformat:1 }} miles away</p>{% endif %}
-      </a>
+      <details class="tile">
+        <summary class="row">
+          <span class="avatar cat--{{ r.shop.category }}" aria-hidden="true">{{ r.shop.initials }}</span>
+          <div class="grow">
+            <h3>{{ r.shop.name }}</h3>
+            <p class="muted sm" style="white-space:normal"><span class="tag cat--{{ r.shop.category }}">{{ r.shop.category_short }}</span>{% if r.distance is not None %} <span class="nowrap">{{ r.distance|floatformat:1 }} mi</span>{% endif %}</p>
+            <p class="sm reason" style="color:var(--{% if r.match.reasons.0.0 %}teal-ink{% else %}warn{% endif %})">{% if r.match.reasons.0.0 %}+{% else %}!{% endif %} {{ r.match.keywords|join:" · " }}</p>
+          </div>
+          <span class="badge {% if r.match.score >= 75 %}ok{% endif %}">{{ r.match.score }} &middot; {{ r.match.label|cut:" match" }}</span>
+        </summary>
+        <div class="more">
+          <ul class="sm">{% for positive, text in r.match.reasons %}<li{% if not positive %} style="color:var(--warn)"{% endif %}>{{ text }}</li>{% endfor %}</ul>
+          <a class="btn ghost sm" href="{{ r.shop.get_absolute_url }}">View shop</a>
+        </div>
+      </details>
     {% empty %}
-      <div class="empty"><h3>No shops found</h3><p class="muted">Try a different search, or invite the shop next door to join.</p></div>
+      <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg></div><h2>No shops found</h2><p class="sm">Try a different search or category, or invite the shop next door to join.</p></div>
     {% endfor %}
   </div>
+
+  <div class="sheet-backdrop" id="sheet-sort">
+    <form class="sheet" method="get" role="dialog" aria-label="Sort by">
+      <input type="hidden" name="q" value="{{ q }}">
+      <input type="hidden" name="category" value="{{ category }}">
+      <div class="screen-head"><h2>Sort by</h2><button class="icon-btn" type="button" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+      <label class="radio"><input type="radio" name="sort" value="match"{% if sort != 'distance' %} checked{% endif %}> Best match</label>
+      <label class="radio"><input type="radio" name="sort" value="distance"{% if sort == 'distance' %} checked{% endif %}> Nearest first</label>
+      <button class="btn block" type="submit">Apply</button>
+    </form>
+  </div>
+</section>
 {% endblock %}

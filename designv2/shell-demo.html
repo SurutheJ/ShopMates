@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FF7A59">
+<title>ShopMates app shell (design reference v2)</title>
+<link rel="icon" href="assets/favicon-64.png">
+<link rel="stylesheet" href="components.css">
+<style></style>
+</head>
+<body data-start="inbox">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 3h6l1-3h5"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol><symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></symbol><symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h12a3 3 0 013 3v13H7a3 3 0 01-3-3z"/><path d="M4 17a3 3 0 013-3h12"/></symbol><symbol id="i-shop" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 004 0"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol><symbol id="i-thumb-up" viewBox="0 0 24 24"><path d="M7 11v9H4v-9z"/><path d="M7 11l4-7a2 2 0 012 2v4h5a2 2 0 012 2.3l-1.2 6A2 2 0 0116.8 20H7"/></symbol><symbol id="i-thumb-down" viewBox="0 0 24 24"><path d="M7 13V4H4v9z"/><path d="M7 13l4 7a2 2 0 002-2v-4h5a2 2 0 002-2.3l-1.2-6A2 2 0 0016.8 4H7"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol><symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol><symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M5 10a11 11 0 015-2.6M19 10a11 11 0 00-4-2.4"/><path d="M8.5 14a6 6 0 013-1.6M15.5 14a6 6 0 00-1.6-1.2"/><circle cx="12" cy="18" r="1"/></symbol><symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14 6a4 4 0 105 5l-8.5 8.5a2 2 0 01-3-3L16 8"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol></defs></svg>
+<div class="app" id="app">
+  <header class="topbar">
+    <a class="title" href="#" aria-label="ShopMates home"><img class="logo-mark" src="assets/logo-mark.png" alt=""><img class="wordmark" src="assets/logo-wordmark.png" alt="ShopMates"></a>
+    <button class="icon-btn" aria-label="Notifications, 3 unread" data-go="notifs"><svg class="i" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot">3</span></button>
+  </header>
+
+  <nav class="rail" aria-label="Main">
+    <button class="nav-item" data-go="inbox"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg></span><span>Inbox</span></button>
+    <button class="nav-item" data-go="discover"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-compass"/></svg></span><span>Discover</span></button>
+    <button class="nav-item" data-go="redeem"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg></span><span>Redeem</span></button>
+    <button class="nav-item" data-go="playbook"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg></span><span>Playbook</span></button>
+    <button class="nav-item" data-go="me"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-shop"/></svg></span><span>My shop</span></button>
+  </nav>
+
+  <main class="main">
+
+    <!-- INBOX: two panes from 1100px -->
+    <section class="screen" id="s-inbox" data-nav="inbox">
+      <div class="split">
+        <div class="list-pane">
+          <div class="screen-head"><div><h1>Green Street Cafe</h1><p class="muted sm">What needs your attention</p></div></div>
+          <div class="seg" role="tablist" data-tabs>
+            <button role="tab" aria-selected="true" data-t="t1">Your turn · 2</button>
+            <button role="tab" aria-selected="false" data-t="t2">Running · 1</button>
+            <button role="tab" aria-selected="false" data-t="t3">Waiting</button>
+          </div>
+          <div class="scroll" data-pane="t1">
+            <div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat coral"><b>2</b><span>need your answer</span></div><div class="stat teal"><b>18</b><span>customers sent this month</span></div></div>
+            <button class="row turn" data-go="deal"><span class="avatar cat--bakery">RB</span><div class="grow"><h3>Rise Bakery</h3><p class="muted sm">Free cookie with any coffee · 15%</p></div><span class="badge turn">Proposed</span></button>
+            <button class="row turn" data-go="agree"><span class="avatar cat--bookstore">PB</span><div class="grow"><h3>Pageturner Books</h3><p class="muted sm">Proposal waiting for your answer</p></div><span class="badge turn">Review</span></button>
+          </div>
+          <div class="scroll" data-pane="t2" hidden>
+            <button class="row" data-go="live"><span class="avatar cat--bookstore">PB</span><div class="grow"><h3>Pageturner Books</h3><p class="muted sm">18 redemptions · ends Dec 15</p></div><span class="badge ok">Active</span></button>
+          </div>
+          <div class="scroll" data-pane="t3" hidden>
+            <button class="row" data-go="deal"><span class="avatar cat--fitness">PY</span><div class="grow"><h3>Prairie Yoga</h3><p class="muted sm">Counter sent · waiting on them</p></div><span class="badge warn">Countered</span></button>
+          </div>
+          <div class="actionbar"><button class="btn block" data-go="discover">Find a neighbor</button></div>
+        </div>
+        <aside class="detail-pane" aria-label="Preview">
+          <div class="card"><h2>Rise Bakery</h2><p class="muted sm">Proposed today · answer within 7 days</p>
+            <dl class="kv" style="margin-top:12px"><dt>Offer</dt><dd>15% off, both ways</dd><dt>Cap per shop</dt><dd>40</dd><dt>Dates</dt><dd>Nov 16 – Dec 16</dd><dt>Fairness</dt><dd>Spend $8 vs $9: balanced</dd></dl>
+            <div class="actionbar" style="margin-top:12px"><button class="btn danger">Decline</button><button class="btn ghost" data-go="counter">Counter</button><button class="btn" data-go="agree">Accept</button></div></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- DISCOVER -->
+    <section class="screen" id="s-discover" data-nav="discover">
+      <div class="screen-head"><div><h1>Find a neighbor</h1><p class="muted sm">Ranked by fit, distance and spend</p></div><button class="btn ghost sm" data-sheet="sheet-sort">Sort</button></div>
+      <input class="input" type="search" placeholder="Search name or street" aria-label="Search">
+      <div class="chips" role="group" aria-label="Category" data-chips><button class="chip" aria-pressed="true">All</button><button class="chip" aria-pressed="false">Bookstore</button><button class="chip" aria-pressed="false">Fitness</button><button class="chip" aria-pressed="false">Flowers</button><button class="chip" aria-pressed="false">Bakery</button><button class="chip" aria-pressed="false">Cafe</button></div>
+      <div class="scroll cols-3">
+        <button class="row" data-go="shop"><span class="avatar cat--fitness">PY</span><div class="grow"><h3>Prairie Yoga</h3><p class="muted sm"><span class="tag cat--fitness">Fitness</span> 0.4 mi · spend $15</p><p class="sm" style="color:var(--teal-ink)">+ Post-workout coffee is a natural stop</p></div><span class="badge ok">78 · Good</span></button>
+        <button class="row" data-go="shop"><span class="avatar cat--bookstore">PB</span><div class="grow"><h3>Pageturner Books</h3><p class="muted sm"><span class="tag cat--bookstore">Bookstore</span> 0.1 mi · spend $24</p><p class="sm" style="color:var(--warn)">! Spend differs a lot, consider a cap</p></div><span class="badge ok">86 · Great</span></button>
+        <button class="row" data-go="shop"><span class="avatar cat--cafe">DG</span><div class="grow"><h3>Daily Grind</h3><p class="muted sm"><span class="tag cat--cafe">Cafe</span> 0.9 mi · same category</p></div><span class="badge">62 · Possible</span></button>
+        <button class="row" data-go="shop"><span class="avatar cat--bakery">RB</span><div class="grow"><h3>Rise Bakery</h3><p class="muted sm"><span class="tag cat--bakery">Bakery</span> 0.6 mi · spend $8</p><p class="sm" style="color:var(--teal-ink)">+ Overlapping hours, different menus</p></div><span class="badge ok">71 · Good</span></button>
+      </div>
+      <div class="sheet-backdrop" id="sheet-sort"><div class="sheet"><div class="screen-head"><h2>Sort by</h2><button class="icon-btn" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+        <label class="radio"><input type="radio" name="sort" checked> Best match</label><label class="radio"><input type="radio" name="sort"> Nearest first</label><label class="radio"><input type="radio" name="sort"> Most similar spend</label>
+        <button class="btn block" data-close>Apply</button></div></div>
+    </section>
+
+    <!-- SHOP DETAIL: match reasons, pitch, report/block -->
+    <section class="screen" id="s-shop" data-nav="discover">
+      <div class="screen-head"><button class="btn back" data-go="discover"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button><button class="btn ghost sm" data-sheet="sheet-report" aria-label="Report or block">⋯ Report</button></div>
+      <div style="display:flex;gap:12px;align-items:center"><div class="avatar lg cat--bookstore" aria-hidden="true">PB</div><div><h1>Pageturner Books</h1><p style="margin-top:6px"><span class="tag cat--bookstore">Bookstore</span></p><p class="muted sm" style="margin-top:4px">214 Green St · open 9–7</p></div></div>
+      <div class="scroll">
+        <div class="stats"><div class="stat"><b>86</b><span>match</span></div><div class="stat"><b>0.1</b><span>miles</span></div><div class="stat warn"><b>$24</b><span>typical spend</span></div></div>
+        <div class="card"><h3>Why this match</h3>
+          <ul class="sm" style="margin:8px 0 0;padding-left:18px;display:grid;gap:4px"><li>Next door: walkable in 2 minutes</li><li>Complementary categories (coffee and books)</li><li style="color:var(--warn)">Spend differs a lot: consider a cap</li></ul></div>
+        <div class="card"><h3>Their pitch</h3><p class="sm" style="margin-top:6px">Quiet reading nook, students stay for hours. Happy to offer a coffee-and-book bundle.</p><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><span class="tag">students</span><span class="tag">quiet</span><span class="tag">gifts</span></div></div>
+      </div>
+      <div class="actionbar"><button class="btn block" data-go="propose">Propose a deal</button></div>
+      <div class="sheet-backdrop" id="sheet-report"><div class="sheet"><div class="screen-head"><h2>Report Pageturner Books</h2><button class="icon-btn" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+        <div class="scroll"><label class="radio"><input type="radio" name="rp" checked> Misleading or false information</label><label class="radio"><input type="radio" name="rp"> Did not honor a deal</label><label class="radio"><input type="radio" name="rp"> Harassment or spam</label><label class="radio"><input type="radio" name="rp"> Something else</label>
+          <div class="field"><label for="rt">Details (optional)</label><textarea id="rt" class="input"></textarea></div>
+          <label class="check"><input type="checkbox"> Also block this shop (hide them and stop proposals)</label></div>
+        <div class="actionbar"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-toast="Report sent. We review reports within 2 days.">Send report</button></div></div></div>
+    </section>
+
+    <!-- PROPOSE WIZARD: partner -> AI draft -> terms -> review -->
+    <section class="screen" id="s-propose" data-nav="discover" data-wizard data-done="inbox">
+      <div class="screen-head"><button class="btn back" data-go="shop"><svg class="i sm" aria-hidden="true"><use href="#i-x"/></svg> Cancel</button><span class="badge turn">New deal</span></div>
+      <div class="stepper" aria-label="Progress"><div class="step"><span class="n">1</span><span>Partner</span></div><hr><div class="step"><span class="n">2</span><span>Draft</span></div><hr><div class="step"><span class="n">3</span><span>Terms</span></div><hr><div class="step"><span class="n">4</span><span>Send</span></div></div>
+      <div class="scroll" data-step="1"><h1>Who is it with?</h1>
+        <div class="card"><div style="display:flex;gap:12px;align-items:center"><div class="avatar cat--bookstore">PB</div><div><h3>Pageturner Books</h3><p class="muted sm">Match 86 · 0.1 mi</p></div></div>
+          <dl class="kv" style="margin-top:12px"><dt>Your typical spend</dt><dd>$9</dd><dt>Their typical spend</dt><dd>$24</dd></dl></div>
+        <div class="callout warn">Their customers spend more than yours, so equal discounts cost them more. The next step proposes a cap.</div></div>
+      <div class="scroll" data-step="2" hidden><h1>Suggested offer</h1>
+        <div class="card"><div style="display:flex;justify-content:space-between;gap:8px"><h3>Free cookie with any book, 10% off a coffee</h3><span class="badge ok">AI draft</span></div>
+          <p class="sm" style="margin-top:8px">Both shops give a small perk to each other's customers. Cap of 30 each keeps the cost balanced.</p>
+          <span class="src xs muted" style="display:block;margin-top:8px">Based on playbook: “Unequal spend: use a cap”, “Cafe and bookstore pairings”</span></div>
+        <div class="callout">The AI only words the offer. The cap and dates are calculated and checked by the app.</div>
+        <button class="btn ghost block" data-toast="New draft generated">Try another draft</button></div>
+      <div class="scroll" data-step="3" hidden><h1>Adjust the terms</h1>
+        <div class="field"><label>Discount</label><div class="chips" data-chips><button class="chip" aria-pressed="false">5%</button><button class="chip" aria-pressed="true">10%</button><button class="chip" aria-pressed="false">15%</button><button class="chip" aria-pressed="false">20%</button></div></div>
+        <div class="field"><label for="cap">Cap per shop (redemptions)</label><input id="cap" class="input" type="number" inputmode="numeric" value="30"><span class="hint">Suggested 30 from the spend gap</span></div>
+        <div class="field"><label for="d1">Starts</label><input id="d1" class="input" type="date" value="2026-11-16"></div>
+        <div class="field"><label for="d2">Ends</label><input id="d2" class="input" type="date" value="2026-12-16"></div>
+        <div class="callout">Fairness preview: spend $9 vs $24 · expected cost to them about $1.8 per redemption · balanced with the cap.</div></div>
+      <div class="scroll" data-step="4" hidden><h1>Review and send</h1>
+        <div class="card"><dl class="kv"><dt>To</dt><dd>Pageturner Books</dd><dt>Offer</dt><dd>10% off, both ways</dd><dt>Cap</dt><dd>30 each</dd><dt>Dates</dt><dd>Nov 16 – Dec 16</dd><dt>Answer by</dt><dd>Nov 23</dd></dl></div>
+        <div class="field"><label for="msg">Add a note (optional)</label><textarea id="msg" class="input">Hi! Want to swap referrals for a month?</textarea></div>
+        <label class="check"><input type="checkbox" checked> I agree to these terms for Green Street Cafe.</label>
+        <p class="xs muted">They can accept, decline or counter. If they accept, the terms are recorded as an agreement you can print. A counter-offer replaces these terms and asks you to confirm again.</p></div>
+      <div class="actionbar"><button class="btn ghost" data-prev hidden>Back</button><button class="btn" data-next data-label="Next" data-last="Send proposal">Next</button></div>
+    </section>
+
+    <!-- DEAL ROOM -->
+    <section class="screen" id="s-deal" data-nav="inbox">
+      <div class="screen-head"><button class="btn back" data-go="inbox"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button><span class="badge turn">Your turn</span></div>
+      <div><h1>Rise Bakery</h1><p class="muted sm">Proposed today · answer within 7 days</p></div>
+      <div class="seg" role="tablist" data-tabs><button role="tab" aria-selected="true" data-t="a">Terms</button><button role="tab" aria-selected="false" data-t="b">Chat</button><button role="tab" aria-selected="false" data-t="c">History</button></div>
+      <div class="scroll" data-pane="a"><div class="card"><h3>Free cookie with any coffee, free refill with any pastry</h3>
+        <dl class="kv" style="margin-top:12px"><dt>Discount</dt><dd>15%</dd><dt>Cap per shop</dt><dd>40</dd><dt>Dates</dt><dd>Nov 16 – Dec 16</dd><dt>Fairness preview</dt><dd>Spend $8 vs $9: balanced</dd></dl></div></div>
+      <div class="scroll chat" data-pane="b" hidden><div class="bubble">Hi! Want to swap referrals for a month?</div><div class="bubble me">Love it. Can we lower the cap to 30?</div></div>
+      <div class="scroll" data-pane="c" hidden><div class="row"><div class="grow"><h3>v1 · Rise Bakery</h3><p class="muted sm">15% · cap 40</p></div></div></div>
+      <div class="actionbar" data-bar="a c"><button class="btn danger" data-toast="Proposal declined">Decline</button><button class="btn ghost" data-go="counter">Counter</button><button class="btn" data-go="agree">Accept</button></div>
+      <div class="actionbar" data-bar="b" hidden><input class="input" aria-label="Message" placeholder="Write a message" style="flex:1"><button class="btn" style="flex:none" data-toast="Message sent">Send</button></div>
+    </section>
+
+    <!-- COUNTER OFFER: AI suggestion + diff against the previous version -->
+    <section class="screen" id="s-counter" data-nav="inbox">
+      <div class="screen-head"><button class="btn back" data-go="deal"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button><span class="badge">Counter</span></div>
+      <h1>Counter Rise Bakery</h1>
+      <div class="scroll">
+        <div class="callout">Suggested: <b>10%, cap 30</b>. Their guests spend about the same, but a lower cap limits risk. The suggestion is clamped to what the rules allow.<span class="src">Playbook: “Start small, renew bigger”</span></div>
+        <div class="diff" aria-label="Changes from their offer">
+          <div class="d changed"><span class="l">Discount</span><del>15%</del><ins>10%</ins></div>
+          <div class="d changed"><span class="l">Cap</span><del>40</del><ins>30</ins></div>
+          <div class="d"><span class="l">Dates</span><span>Nov 16 – Dec 16</span><span>same</span></div>
+        </div>
+        <div class="field"><label for="cn">Note</label><textarea id="cn" class="input">Love it. Can we lower the cap to 30?</textarea></div>
+      </div>
+      <div class="actionbar"><button class="btn ghost" data-go="deal">Cancel</button><button class="btn" data-go="inbox" data-toast="Counter sent">Send counter</button></div>
+    </section>
+
+    <!-- AGREEMENT -->
+    <section class="screen" id="s-agree" data-nav="inbox">
+      <div class="screen-head"><button class="btn back" data-go="inbox"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button><span class="badge turn">Your answer</span></div>
+      <h1>Accept this deal</h1>
+      <div class="stepper"><div class="step done"><span class="n"><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg></span><span>Review</span></div><hr><div class="step on"><span class="n">2</span><span>Accept</span></div><hr><div class="step"><span class="n">3</span><span>Live</span></div></div>
+      <div class="scroll">
+        <div class="card"><dl class="kv"><dt>Between</dt><dd>Green Street Cafe &amp; Pageturner Books</dd><dt>Offer</dt><dd>10% off, both ways</dd><dt>Cap</dt><dd>30 each</dd><dt>Term</dt><dd>Nov 1 – Dec 15</dd><dt>Answer by</dt><dd>Nov 23</dd><dt>Ends if</dt><dd>cap hit or date passes</dd></dl>
+          <button class="btn ghost block" style="margin-top:12px" data-sheet="sheet-agree">Read full agreement</button>
+          <div class="callout" style="margin-top:12px">In plain English: each shop gives the other's customers 10% off, up to 30 each, until Dec 15. A customer counts only after staff confirm their code.<span class="src">Summary written by AI from the terms above</span></div></div>
+        <div class="card"><div class="field"><label for="nm">Type your full name to accept</label><input id="nm" class="input" value="Sahithi Madabhushi" autocomplete="name"></div>
+          <label class="check" style="margin-top:12px"><input type="checkbox" checked> I am authorized to accept for Green Street Cafe.</label></div>
+        <p class="xs muted">Pageturner Books confirmed these terms when they sent them. Accepting records the agreement and the deal goes live on the start date. This is an electronic record of agreement, not legal advice.</p>
+      </div>
+      <div class="actionbar"><button class="btn block" data-go="live" data-toast="Accepted. The agreement is recorded">Accept and confirm</button></div>
+      <div class="sheet-backdrop" id="sheet-agree"><div class="sheet"><div class="screen-head"><h2>Agreement text</h2><button class="icon-btn" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+        <div class="scroll"><p class="sm"><b>1. Parties.</b> Green Street Cafe ("Cafe") and Pageturner Books ("Books").</p><p class="sm"><b>2. Offer.</b> Customers referred by either party receive 10% off one purchase at the other.</p><p class="sm"><b>3. Caps and term.</b> Each party honors up to 30 redemptions between Nov 1 and Dec 15.</p><p class="sm"><b>4. Verification.</b> A redemption counts only when staff confirm a one-time code in ShopMates.</p><p class="sm"><b>5. Ending.</b> Either party may end the deal in writing; redemptions already confirmed are honored.</p><p class="xs muted">Document fingerprint (SHA-256): 9f2c…a41e</p></div></div></div>
+    </section>
+
+    <!-- LIVE DEAL -->
+    <section class="screen" id="s-live" data-nav="inbox">
+      <div class="screen-head"><button class="btn back" data-go="inbox"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button><span class="badge ok">Active</span></div>
+      <h1>Pageturner Books</h1>
+      <div class="seg" role="tablist" data-tabs><button role="tab" aria-selected="true" data-t="a">QR</button><button role="tab" aria-selected="false" data-t="b">Results</button><button role="tab" aria-selected="false" data-t="c">Agreement</button></div>
+      <div class="scroll" data-pane="a" style="justify-content:center"><div class="qr" role="img" aria-label="QR code"></div><p class="muted sm" style="text-align:center">Customers scan this to get a one-time code for Pageturner Books</p><a class="btn ghost block" href="qr-card.html">Print counter card</a></div>
+      <div class="scroll" data-pane="b" hidden>
+        <div class="stats"><div class="stat"><b>14</b><span>you sent</span></div><div class="stat"><b>4</b><span>you got</span></div><div class="stat warn"><b>$34</b><span>their cost</span></div></div>
+        <div class="card"><svg class="chart" viewBox="0 0 320 120" role="img" aria-label="Customers sent per day"><g fill="#15803D"><rect x="12" y="70" width="12" height="40"/><rect x="48" y="50" width="12" height="60"/><rect x="84" y="80" width="12" height="30"/><rect x="120" y="40" width="12" height="70"/><rect x="156" y="60" width="12" height="50"/><rect x="192" y="30" width="12" height="80"/><rect x="228" y="55" width="12" height="55"/><rect x="264" y="45" width="12" height="65"/></g><g fill="#FF7A59"><rect x="26" y="95" width="12" height="15"/><rect x="98" y="100" width="12" height="10"/><rect x="206" y="92" width="12" height="18"/></g></svg></div>
+        <div class="callout"><b>Deal coach.</b> The cafe sends 10 more customers, but the bookstore pays about 9x more in discounts. Renew with a perk from the bookstore.</div>
+        <button class="btn block" data-toast="Renewal draft ready: same terms plus a bookstore perk">Renew with these terms</button>
+      </div>
+      <div class="scroll" data-pane="c" hidden><div class="row"><div class="grow"><h3>Agreement · confirmed by both</h3><p class="muted sm">Nov 1 · both parties</p></div><a class="btn ghost sm" href="agreement.html">View</a></div><button class="btn danger block" data-sheet="sheet-end">End deal early</button></div>
+      <div class="sheet-backdrop" id="sheet-end"><div class="sheet"><h2>End this deal?</h2><p class="sm">Confirmed redemptions are still honored. Both shops are notified and the QR stops working.</p><div class="actionbar"><button class="btn ghost" data-close>Keep it</button><button class="btn danger" data-toast="Deal ended">End deal</button></div></div></div>
+    </section>
+
+    <!-- REDEEM: three result states -->
+    <section class="screen" id="s-redeem" data-nav="redeem">
+      <div><h1>Confirm a customer</h1><p class="muted sm">Pageturner Books · staff</p></div>
+      <div class="field"><label for="cd">Customer code</label><input id="cd" class="input code big" value="K7M2 9QXA" inputmode="text" autocapitalize="characters" autocomplete="off"></div>
+      <div class="seg" role="tablist" data-tabs aria-label="Result states (design preview)"><button role="tab" aria-selected="true" data-t="ok">Valid</button><button role="tab" aria-selected="false" data-t="used">Used</button><button role="tab" aria-selected="false" data-t="bad">Not found</button></div>
+      <div class="scroll" data-pane="ok"><div class="callout"><b>Valid.</b> 10% off one purchase. Sent by Green Street Cafe.</div><p class="muted sm">Recent</p><div class="row"><div class="grow"><b>M4PX 82TL</b></div><span class="muted sm">2 min ago</span></div><div class="row"><div class="grow"><b>Q9ZA 3WKD</b></div><span class="muted sm">1 hr ago</span></div></div>
+      <div class="scroll" data-pane="used" hidden><div class="callout warn"><b>Already used</b> today at 2:14 pm by Pageturner Books staff. A code works once.</div></div>
+      <div class="scroll" data-pane="bad" hidden><div class="callout bad"><b>Code not found.</b> Check the letters, or ask the customer to open their code again. Too many wrong tries pause this screen for a minute.</div></div>
+      <div class="actionbar"><button class="btn ghost" data-toast="Camera opens here on a phone">Scan QR</button><button class="btn big" data-toast="Redemption confirmed">Confirm</button></div>
+    </section>
+
+    <!-- PLAYBOOK -->
+    <section class="screen" id="s-playbook" data-nav="playbook">
+      <div><h1>Deal playbook</h1><p class="muted sm">Answers cite their sources</p></div>
+      <input class="input" type="search" value="What deal should a bakery offer a flower shop?" aria-label="Question">
+      <div class="seg" role="tablist" data-tabs aria-label="Result states (design preview)"><button role="tab" aria-selected="true" data-t="a">Answer</button><button role="tab" aria-selected="false" data-t="b">Not covered</button><button role="tab" aria-selected="false" data-t="c">Offline</button></div>
+      <div class="scroll" data-pane="a"><div class="callout"><b>Answer.</b> Offer a pastry discount with a flower purchase and the reverse, and raise the cap for holiday weeks.</div><p class="muted sm">Sources</p><div class="card"><h3>Bakery and flower shop pairing</h3><p class="sm muted">Both sell gifts for the same occasions…</p></div><div style="display:flex;gap:8px"><button class="btn ghost sm" data-toast="Thanks for the feedback"><svg class="i sm" aria-hidden="true"><use href="#i-thumb-up"/></svg> Useful</button><button class="btn ghost sm" data-toast="Thanks for the feedback"><svg class="i sm" aria-hidden="true"><use href="#i-thumb-down"/></svg> Not useful</button></div></div>
+      <div class="scroll" data-pane="b" hidden><div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg></div><h2>The playbook does not cover this</h2><p class="sm">It only answers from its own guides, so it says so instead of guessing.</p><div class="chips"><button class="chip">Cap sizes</button><button class="chip">Seasonal deals</button></div></div></div>
+      <div class="scroll" data-pane="c" hidden><div class="banner">Using offline answers: the AI service is busy. The same sources are shown.</div><div class="card"><h3>Bakery and flower shop pairing</h3><p class="sm muted">Both sell gifts for the same occasions…</p></div></div>
+    </section>
+
+    <!-- NOTIFICATIONS -->
+    <section class="screen" id="s-notifs" data-nav="inbox">
+      <div class="screen-head"><button class="btn back" data-go="inbox"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button><h2>Notifications</h2></div>
+      <div class="scroll">
+        <p class="muted sm">Today</p>
+        <button class="row notif unread" data-go="deal"><div class="grow"><h3>Rise Bakery sent a proposal</h3><p class="muted sm">15% · cap 40 · 9 min ago</p></div></button>
+        <button class="row notif unread" data-go="agree"><div class="grow"><h3>Pageturner Books sent a proposal</h3><p class="muted sm">Confirmed on their side · 1 hr ago</p></div></button>
+        <button class="row notif unread" data-go="live"><div class="grow"><h3>Deal ends in 3 days</h3><p class="muted sm">Pageturner Books · renew?</p></div></button>
+        <p class="muted sm">Earlier</p>
+        <div class="row notif"><div class="grow"><h3>Prairie Yoga countered</h3><p class="muted sm">Cap 25 · Nov 12</p></div></div>
+        <div class="row notif"><div class="grow"><h3>Redemption confirmed</h3><p class="muted sm">K7M2 9QXA · Nov 10</p></div></div>
+      </div>
+      <div class="actionbar"><button class="btn ghost block" data-toast="All caught up">Mark all read</button></div>
+    </section>
+
+    <!-- MY SHOP: profile, team, account -->
+    <section class="screen narrow" id="s-me" data-nav="me">
+      <div class="screen-head"><div><h1>My shop</h1><p class="muted sm">Green Street Cafe · owner</p></div><span class="badge ok">Approved</span></div>
+      <div class="seg" role="tablist" data-tabs><button role="tab" aria-selected="true" data-t="a">Profile</button><button role="tab" aria-selected="false" data-t="b">Team</button><button role="tab" aria-selected="false" data-t="c">Account</button></div>
+      <div class="scroll" data-pane="a"><div class="card"><dl class="kv"><dt>Category</dt><dd>Cafe</dd><dt>Address</dt><dd>101 Green St</dd><dt>Hours</dt><dd>7–5</dd><dt>Typical order</dt><dd>$9</dd><dt>Location</dt><dd>Found from address</dd></dl>
+        <p class="sm" style="margin-top:12px"><b>Pitch.</b> Student favorite, strong morning rush.</p><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><span class="tag">students</span><span class="tag">morning</span><span class="tag">coffee</span></div></div>
+        <button class="btn ghost block" data-sheet="sheet-edit">Edit profile</button>
+        <button class="row" data-go="insights"><div class="grow"><h3>AI usage</h3><p class="muted sm">Staff only · latency, quality, cost</p></div><span class="badge">Staff</span></button></div>
+      <div class="scroll" data-pane="b" hidden><div class="row"><div class="avatar">SM</div><div class="grow"><h3>Sahithi M.</h3><p class="muted sm">Owner</p></div></div><div class="row"><div class="avatar">AJ</div><div class="grow"><h3>Alex J.</h3><p class="muted sm">Staff · can redeem</p></div><button class="btn danger sm" data-toast="Alex removed">Remove</button></div>
+        <div class="field"><label for="st">Add staff by username or email</label><input id="st" class="input" type="email" placeholder="name@example.com"><span class="hint">They need an account first.</span></div><button class="btn block" data-toast="Staff added">Add staff</button></div>
+      <div class="scroll" data-pane="c" hidden>
+        <div class="card"><label class="switch"><span>Email me about proposals</span><input type="checkbox" checked style="width:24px;height:24px"></label><label class="switch"><span>Remind me before deals end</span><input type="checkbox" checked style="width:24px;height:24px"></label></div>
+        <a class="row" href="public-demo.html?screen=terms"><div class="grow">Terms and Privacy</div></a>
+        <button class="row" data-toast="Your data export is being prepared"><div class="grow">Download my data</div></button>
+        <button class="btn danger block" data-sheet="sheet-delete">Delete account</button>
+        <button class="btn ghost block" data-toast="Logged out">Log out</button></div>
+      <div class="sheet-backdrop" id="sheet-edit"><div class="sheet"><div class="screen-head"><h2>Edit profile</h2><button class="icon-btn" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+        <div class="scroll"><div class="field"><label for="p1">Pitch (max 140 characters)</label><textarea id="p1" class="input">Student favorite, strong morning rush.</textarea></div><div class="field"><label>Tags</label><div class="chips" data-multi><button class="chip" aria-pressed="true">students</button><button class="chip" aria-pressed="true">morning</button><button class="chip" aria-pressed="false">gifts</button><button class="chip" aria-pressed="false">family</button></div></div></div>
+        <div class="actionbar"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-toast="Profile saved">Save</button></div></div></div>
+      <div class="sheet-backdrop" id="sheet-delete"><div class="sheet"><h2>Delete your account?</h2><p class="sm">This removes your login and personal data. Shop records stay for the other shop's history, without your name. Type the shop name to confirm.</p><input class="input" placeholder="Green Street Cafe" aria-label="Type shop name"><div class="actionbar"><button class="btn ghost" data-close>Cancel</button><button class="btn danger" data-toast="Deletion scheduled">Delete</button></div></div></div>
+    </section>
+
+    <!-- AI USAGE DASHBOARD (staff). Numbers are sample data for the mock only -->
+    <section class="screen" id="s-insights" data-nav="me">
+      <div class="screen-head"><button class="btn back" data-go="me"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button><span class="badge warn">Sample data</span></div>
+      <h1>AI usage</h1>
+      <div class="seg" role="tablist" data-tabs><button role="tab" aria-selected="true" data-t="a">Speed</button><button role="tab" aria-selected="false" data-t="b">Quality</button><button role="tab" aria-selected="false" data-t="c">Cost</button></div>
+      <div class="scroll" data-pane="a">
+        <div class="stats"><div class="stat"><b>1.8s</b><span>median</span></div><div class="stat"><b>4.1s</b><span>95th pct</span></div><div class="stat warn"><b>12%</b><span>fallback</span></div></div>
+        <div class="card"><h3>How long requests take</h3><svg class="chart" viewBox="0 0 320 110" role="img" aria-label="Latency histogram"><g fill="#15803D"><rect x="8" y="30" width="26" height="70"/><rect x="40" y="10" width="26" height="90"/><rect x="72" y="40" width="26" height="60"/><rect x="104" y="64" width="26" height="36"/><rect x="136" y="80" width="26" height="20"/><rect x="168" y="88" width="26" height="12"/><rect x="200" y="94" width="26" height="6"/></g><g class="xs" font-size="9" fill="#6A5C54"><text x="8" y="109">0.5s</text><text x="104" y="109">2s</text><text x="200" y="109">4s+</text></g></svg></div>
+        <table class="tbl"><thead><tr><th>Feature</th><th>Median</th><th>p95</th></tr></thead><tbody><tr><td>Draft</td><td>2.1s</td><td>4.5s</td></tr><tr><td>Coach</td><td>1.6s</td><td>3.8s</td></tr><tr><td>Playbook</td><td>0.2s</td><td>0.6s</td></tr></tbody></table></div>
+      <div class="scroll" data-pane="b" hidden>
+        <div class="card"><h3>Finds the right passage</h3><div class="bars" style="margin-top:10px"><div class="b"><span>Dev Hit@3</span><span style="background:var(--sand);border-radius:7px"><i style="width:100%"></i></span><span>14/14</span></div><div class="b"><span>Held-out</span><span style="background:var(--sand);border-radius:7px"><i class="warn" style="width:67%"></i></span><span>4/6</span></div></div></div>
+        <div class="card"><h3>Number guard fired</h3><p class="sm" style="margin-top:6px">3 of 40 coach answers had a number not in the data and were replaced by the template.</p></div>
+        <div class="stats"><div class="stat"><b>82%</b><span>useful votes</span></div><div class="stat"><b>0</b><span>unsafe</span></div><div class="stat warn"><b>7%</b><span>no match</span></div></div></div>
+      <div class="scroll" data-pane="c" hidden>
+        <div class="stats"><div class="stat"><b>$0.00</b><span>this week</span></div><div class="stat"><b>0.4¢</b><span>per deal</span></div><div class="stat"><b>38%</b><span>of daily cap</span></div></div>
+        <div class="card"><h3>Daily request cap</h3><div class="progress" style="margin-top:10px" role="progressbar" aria-valuenow="38" aria-valuemin="0" aria-valuemax="100"><i style="width:38%"></i></div><p class="xs muted" style="margin-top:6px">Above the cap, features switch to offline suggestions instead of failing.</p></div></div>
+    </section>
+
+    <!-- STATES: empty, loading, error, offline -->
+    <section class="screen" id="s-states" data-nav="inbox">
+      <div class="screen-head"><div><h1>States</h1><p class="muted sm">Every list needs these four</p></div></div>
+      <div class="seg" role="tablist" data-tabs><button role="tab" aria-selected="true" data-t="a">Empty</button><button role="tab" aria-selected="false" data-t="b">Loading</button><button role="tab" aria-selected="false" data-t="c">Error</button><button role="tab" aria-selected="false" data-t="d">Offline</button></div>
+      <div class="scroll" data-pane="a"><div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg></div><h2>No deals yet</h2><p class="sm">Find a neighbor and send your first proposal. It takes about a minute.</p><button class="btn" data-go="discover">Find a neighbor</button></div></div>
+      <div class="scroll" data-pane="b" hidden aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><p class="muted sm" style="text-align:center"><span class="spinner" aria-hidden="true"></span> Writing a draft, a few seconds…</p></div>
+      <div class="scroll" data-pane="c" hidden><div class="banner bad" role="alert">We could not load your deals.</div><button class="btn block" data-toast="Retrying">Try again</button><div class="callout warn"><b>AI is unavailable right now.</b> Showing a rule-based suggestion instead. It uses the same limits.</div></div>
+      <div class="scroll" data-pane="d" hidden><div class="banner" role="status">You are offline. Showing what was saved on this phone.</div><div class="row"><div class="grow"><h3>Pageturner Books</h3><p class="muted sm">Active · saved 10 min ago</p></div></div></div>
+    </section>
+  </main>
+
+  <nav class="bottomnav" aria-label="Main">
+    <button class="nav-item" data-go="inbox"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg></span><span>Inbox</span><span class="dot">2</span></button>
+    <button class="nav-item" data-go="discover"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-compass"/></svg></span><span>Discover</span></button>
+    <button class="nav-item" data-go="redeem"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg></span><span>Redeem</span></button>
+    <button class="nav-item" data-go="playbook"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg></span><span>Playbook</span></button>
+    <button class="nav-item" data-go="me"><span class="ico"><svg class="i" aria-hidden="true"><use href="#i-shop"/></svg></span><span>My shop</span></button>
+  </nav>
+</div>
+<script src="shell.js"></script>
+</body></html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FF7A59">
+<title>ShopMates public and onboarding pages (design reference v2)</title>
+<link rel="icon" href="assets/favicon-64.png">
+<link rel="stylesheet" href="components.css">
+<style></style>
+</head>
+<body data-start="landing">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 3h6l1-3h5"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol><symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></symbol><symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h12a3 3 0 013 3v13H7a3 3 0 01-3-3z"/><path d="M4 17a3 3 0 013-3h12"/></symbol><symbol id="i-shop" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 004 0"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol><symbol id="i-thumb-up" viewBox="0 0 24 24"><path d="M7 11v9H4v-9z"/><path d="M7 11l4-7a2 2 0 012 2v4h5a2 2 0 012 2.3l-1.2 6A2 2 0 0116.8 20H7"/></symbol><symbol id="i-thumb-down" viewBox="0 0 24 24"><path d="M7 13V4H4v9z"/><path d="M7 13l4 7a2 2 0 002-2v-4h5a2 2 0 002-2.3l-1.2-6A2 2 0 0016.8 4H7"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol><symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol><symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M5 10a11 11 0 015-2.6M19 10a11 11 0 00-4-2.4"/><path d="M8.5 14a6 6 0 013-1.6M15.5 14a6 6 0 00-1.6-1.2"/><circle cx="12" cy="18" r="1"/></symbol><symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14 6a4 4 0 105 5l-8.5 8.5a2 2 0 01-3-3L16 8"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol></defs></svg>
+<!-- No bottom nav here: visitors, sign-in, first-time setup and error pages use the same shell without navigation. -->
+<div class="app bare" id="app">
+  <header class="topbar">
+    <a class="title" href="#" aria-label="ShopMates home"><img class="logo-mark" src="assets/logo-mark.png" alt=""><img class="wordmark" src="assets/logo-wordmark.png" alt="ShopMates"></a>
+    <button class="btn ghost sm" data-go="login">Log in</button>
+  </header>
+  <main class="main">
+
+    <!-- LANDING with public numbers -->
+    <section class="screen narrow" id="s-landing">
+      <div class="scroll">
+        <div class="hero">
+          <img class="hero-mark" src="assets/logo-mark.png" alt="">
+          <h1 style="font-size:var(--fs-2xl)">Send each other customers. Neighbors, not ads.</h1>
+          <p class="muted">Pair up with a nearby shop, swap a small perk, and see exactly who sent whom.</p>
+        </div>
+        <ol class="steps">
+          <li><span><b>Find a neighbor</b>Nearby shops, ranked by fit, distance and spend.</span></li>
+          <li><span><b>Agree on a deal</b>Propose, counter or accept. The terms are recorded.</span></li>
+          <li><span><b>Share your QR code</b>Customers scan it and get a one-time code for your partner.</span></li>
+        </ol>
+        <div class="stats"><div class="stat"><b>8</b><span>shops</span></div><div class="stat"><b>31</b><span>deals</span></div><div class="stat"><b>212</b><span>customers sent</span></div></div>
+        <p class="xs muted">Sample numbers for this mock. The real page reads them from the database.</p>
+      </div>
+      <div class="actionbar"><button class="btn ghost" data-go="login">Log in</button><button class="btn" data-go="signup">Create account</button></div>
+    </section>
+
+    <!-- LOGIN -->
+    <section class="screen narrow" id="s-login">
+      <div class="scroll"><h1>Welcome back</h1>
+        <button class="btn ghost block" data-toast="Google sign-in opens here">Continue with Google</button>
+        <p class="muted sm" style="text-align:center">or</p>
+        <div class="field"><label for="lu">Username or email</label><input id="lu" class="input" autocomplete="username"></div>
+        <div class="field"><label for="lp">Password</label><input id="lp" class="input" type="password" autocomplete="current-password"><a class="sm" href="#" data-go="reset" style="min-height:var(--tap);display:inline-flex;align-items:center">Forgot password?</a></div>
+        <div class="banner bad" role="alert" hidden>That username or password did not match.</div></div>
+      <div class="actionbar"><button class="btn block" data-go="onboard">Log in</button></div>
+    </section>
+
+    <!-- PASSWORD RESET -->
+    <section class="screen narrow" id="s-reset">
+      <div class="screen-head"><button class="btn back" data-go="login"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button></div>
+      <div class="scroll"><h1>Reset your password</h1><p class="muted sm">Enter your email. If it matches an account we send a link that works for one hour.</p>
+        <div class="field"><label for="re">Email</label><input id="re" class="input" type="email" autocomplete="email"></div></div>
+      <div class="actionbar"><button class="btn block" data-toast="If that email has an account, a link is on its way">Send link</button></div>
+    </section>
+
+    <!-- SIGN UP with consent -->
+    <section class="screen narrow" id="s-signup">
+      <div class="scroll"><h1>Create your account</h1>
+        <div class="field"><label for="su">Username</label><input id="su" class="input" autocomplete="username"></div>
+        <div class="field"><label for="se">Email</label><input id="se" class="input" type="email" autocomplete="email"><span class="hint">Used for sign-in and deal notices.</span></div>
+        <div class="field"><label for="sp">Password</label><input id="sp" class="input" type="password" autocomplete="new-password"><span class="hint">At least 10 characters.</span></div>
+        <label class="check"><input type="checkbox"> I agree to the <a href="#" data-go="terms">Terms and Privacy</a>, including that AI suggestions can be wrong.</label></div>
+      <div class="actionbar"><button class="btn block" data-go="onboard">Create account</button></div>
+    </section>
+
+    <!-- SHOP ONBOARDING WIZARD: basics -> place -> pitch -->
+    <section class="screen narrow" id="s-onboard" data-wizard data-done="pending">
+      <div class="stepper" aria-label="Progress"><div class="step"><span class="n">1</span><span>Basics</span></div><hr><div class="step"><span class="n">2</span><span>Place</span></div><hr><div class="step"><span class="n">3</span><span>Pitch</span></div></div>
+      <div class="scroll" data-step="1"><h1>Tell us about your shop</h1>
+        <div class="field"><label for="o1">Shop name</label><input id="o1" class="input" value="Green Street Cafe"></div>
+        <div class="field"><label for="o2">Category</label><select id="o2" class="input"><option>Cafe</option><option>Bookstore</option><option>Bakery</option><option>Fitness</option><option>Flowers</option></select></div>
+        <div class="field"><label for="o3">Typical order ($)</label><input id="o3" class="input" type="number" inputmode="decimal" value="9"><span class="hint">Used to balance the cost of deals. Rough is fine.</span></div></div>
+      <div class="scroll" data-step="2" hidden><h1>Where are you?</h1>
+        <div class="field"><label for="o4">Street address</label><input id="o4" class="input" value="101 Green St, Champaign" autocomplete="street-address"></div>
+        <div class="callout">We find your location from the address, so neighbors see distance. You can enter coordinates by hand if that fails.</div>
+        <div class="field"><label for="o5">Opening hours</label><input id="o5" class="input" value="7am to 5pm"></div></div>
+      <div class="scroll" data-step="3" hidden><h1>Your pitch</h1>
+        <div class="field"><label for="o6">One or two sentences (max 140 characters)</label><textarea id="o6" class="input">Student favorite, strong morning rush.</textarea></div>
+        <div class="field"><label>Tags</label><div class="chips" data-multi><button class="chip" aria-pressed="true">students</button><button class="chip" aria-pressed="false">family</button><button class="chip" aria-pressed="false">gifts</button><button class="chip" aria-pressed="false">quiet</button></div></div>
+        <p class="xs muted">Other shops see this. An admin approves new shops before they can send proposals.</p></div>
+      <div class="actionbar"><button class="btn ghost" data-prev hidden>Back</button><button class="btn" data-next data-label="Next" data-last="Submit for approval">Next</button></div>
+    </section>
+
+    <!-- PENDING APPROVAL -->
+    <section class="screen narrow" id="s-pending">
+      <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg></div><h2>Waiting for approval</h2><p class="sm">An admin checks new shops, usually within a day. We email you when you are in.</p><button class="btn ghost" data-go="landing">Back to start</button></div>
+    </section>
+
+    <!-- TERMS AND PRIVACY -->
+    <section class="screen narrow" id="s-terms">
+      <div class="screen-head"><button class="btn back" data-go="signup"><svg class="i sm" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button></div>
+      <div class="seg" role="tablist" data-tabs><button role="tab" aria-selected="true" data-t="a">Terms</button><button role="tab" aria-selected="false" data-t="b">Privacy</button></div>
+      <div class="scroll" data-pane="a"><h1>Terms</h1><p class="sm"><b>What this is.</b> ShopMates helps shops agree small customer-referral deals. It is a class project, not a bank or law firm.</p><p class="sm"><b>Agreements.</b> The e-signature is a simple typed signature. It records who agreed and when. It is not legal advice.</p><p class="sm"><b>AI suggestions.</b> Drafts, summaries and answers can be wrong. The app checks numbers, but you decide.</p><p class="xs muted">Plain-language draft, not reviewed by a lawyer.</p></div>
+      <div class="scroll" data-pane="b" hidden><h1>Privacy</h1><p class="sm"><b>What we store.</b> Account details, shop details, deals, signatures and redemptions.</p><p class="sm"><b>AI.</b> Shop names, categories and deal terms are sent to the AI provider to write suggestions. Do not put customer names or private data in pitches.</p><p class="sm"><b>Your choices.</b> Download or delete your data under My shop → Account.</p></div>
+      <div class="actionbar"><button class="btn block" data-go="signup">Back to sign up</button></div>
+    </section>
+
+    <!-- CUSTOMER VOUCHER: opened by scanning the QR, no account, no nav -->
+    <section class="screen narrow" id="s-voucher">
+      <div class="seg" role="tablist" data-tabs aria-label="States (design preview)"><button role="tab" aria-selected="true" data-t="a">Ready</button><button role="tab" aria-selected="false" data-t="b">Used</button><button role="tab" aria-selected="false" data-t="c">Expired</button></div>
+      <div class="scroll" data-pane="a" style="justify-content:center;text-align:center"><p class="muted sm">From Green Street Cafe</p><h1>10% off at Pageturner Books</h1><div class="card"><p class="muted sm">Your one-time code</p><div class="code">K7M2 9QXA</div><p class="sm" style="margin-top:8px">Expires in <b>23:41:12</b></p></div><p class="sm">Show this screen to the staff at the register. One purchase, one use.</p><p class="xs muted">The code is saved on this phone once the page has loaded, so it still opens without a signal.</p></div>
+      <div class="scroll" data-pane="b" hidden style="justify-content:center"><div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg></div><h2>Already used</h2><p class="sm">This code was confirmed today at 2:14 pm. Thanks for visiting Pageturner Books.</p></div></div>
+      <div class="scroll" data-pane="c" hidden style="justify-content:center"><div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg></div><h2>This code expired</h2><p class="sm">Scan the QR code at Green Street Cafe again to get a new one while the offer is running.</p></div></div>
+    </section>
+
+    <!-- PUBLIC STATS -->
+    <section class="screen narrow" id="s-stats">
+      <div class="screen-head"><div><h1>Neighbors in numbers</h1><p class="muted sm">Totals only, no shop names</p></div><span class="badge warn">Sample data</span></div>
+      <div class="scroll"><div class="stats"><div class="stat"><b>8</b><span>shops</span></div><div class="stat"><b>31</b><span>deals</span></div><div class="stat"><b>212</b><span>customers sent</span></div></div>
+        <div class="card"><h3>Customers sent per week</h3><svg viewBox="0 0 320 100" style="width:100%;height:auto" role="img" aria-label="Customers per week"><g fill="#15803D"><rect x="14" y="70" width="30" height="26"/><rect x="62" y="55" width="30" height="41"/><rect x="110" y="40" width="30" height="56"/><rect x="158" y="30" width="30" height="66"/><rect x="206" y="22" width="30" height="74"/><rect x="254" y="12" width="30" height="84"/></g></svg></div>
+        <p class="xs muted">Groups smaller than 3 shops are hidden so no single shop can be identified.</p></div>
+    </section>
+
+    <!-- ERROR PAGES -->
+    <section class="screen narrow" id="s-e404"><div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-compass"/></svg></div><h2>Page not found</h2><p class="sm">The link may be old, or the deal was removed.</p><button class="btn" data-go="landing">Go home</button></div></section>
+    <section class="screen narrow" id="s-e500"><div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-wrench"/></svg></div><h2>Something went wrong</h2><p class="sm">It is on us. Your data is safe. Try again in a minute.</p><button class="btn" data-go="landing">Go home</button></div></section>
+    <section class="screen narrow" id="s-offline"><div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-wifi-off"/></svg></div><h2>You are offline</h2><p class="sm">Pages you opened recently still work. Reconnect to send or confirm anything.</p><button class="btn ghost" data-toast="Still offline">Retry</button></div></section>
+  </main>
+</div>
+<script src="shell.js"></script>
+</body></html>
