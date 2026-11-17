@@ -5,18 +5,25 @@
 {% block app_class %} bare{% endblock %}
 {% block topbar_actions %}{% endblock %}
 
-{% block content %}
-  <div class="card card--narrow center">
-    <p class="muted">{{ referring.name }} recommends</p>
+{# Opened from the QR code, no account. Same bare shell as the voucher page. #}
+{% block screen %}
+<section class="screen narrow active" id="s-voucher-start">
+  <div class="scroll mid">
+    <p class="muted sm">{{ referring.name }} recommends</p>
     <h1>{{ honoring.name }}</h1>
     {% if available %}
-      <p class="lead">{{ version.offer_text }}</p>
-      <p class="muted">{{ honoring.address }}, {{ honoring.city }}{% if honoring.hours %}<br>{{ honoring.hours }}{% endif %}</p>
-      {% if error %}<p class="error">{{ error }}</p>{% endif %}
-      <form method="post">{% csrf_token %}<button class="btn btn-block" type="submit">Get my code</button></form>
-      <p class="small muted">Show the code at the counter. It works once and expires in a day.</p>
+      <div class="card">
+        <p><b>{{ version.offer_text }}</b></p>
+        <p class="muted sm">{{ honoring.address }}, {{ honoring.city }}{% if honoring.hours %}<br>{{ honoring.hours }}{% endif %}</p>
+      </div>
+      {% if error %}<div class="banner bad" role="alert">{{ error }}</div>{% endif %}
+      <p class="xs muted">Show the code at the counter. It works once and expires in a day.</p>
+      <form method="post" id="voucher-form">{% csrf_token %}</form>
     {% else %}
-      <p class="muted">{{ error|default:"This offer is not available right now." }}</p>
+      <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg></div>
+        <h2>Not available right now</h2><p class="sm">{{ error|default:"This offer is not running at the moment." }}</p></div>
     {% endif %}
   </div>
+  {% if available %}<div class="actionbar"><button class="btn block big" type="submit" form="voucher-form">Get my code</button></div>{% endif %}
+</section>
 {% endblock %}

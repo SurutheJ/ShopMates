@@ -1,0 +1,15 @@
+{% load ui %}
+{# Sign-in pages: every visible field in the designv2 field style. Form-level errors are the page's banner, not here. #}
+{% for field in form.visible_fields %}
+  {% if field.field.widget.input_type == "checkbox" %}
+    <label class="check">{{ field }} {{ field.label }}</label>
+  {% else %}
+    <div class="field">
+      <label for="{{ field.id_for_label }}">{% if field.name == "login" %}Username or email{% else %}{{ field.label }}{% endif %}</label>
+      {{ field|as_input }}
+      {% if field.help_text %}<span class="hint">{{ field.help_text|safe }}</span>{% endif %}
+      {% for error in field.errors %}<span class="err">{{ error }}</span>{% endfor %}
+    </div>
+  {% endif %}
+{% endfor %}
+{% for field in form.hidden_fields %}{{ field }}{% endfor %}

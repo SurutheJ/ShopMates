@@ -2,10 +2,11 @@
 
 {% block title %}Please try again{% endblock %}
 
-{% block content %}
-  <div class="card card--narrow">
-    <h1>Please try again</h1>
-    <p class="muted">The page was open too long, or cookies are turned off, so we could not confirm the request was yours. Go back, reload the page and send it again.</p>
-    <p><a href="{% url 'home' %}">Go home</a></p>
+{% block screen %}
+<section class="screen narrow active" id="s-403-csrf">
+  <div class="scroll mid">
+    <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg></div>
+      <h1>Please try again</h1><p class="sm">The page was open too long, or cookies are turned off, so we could not confirm the request was yours. Go back, reload the page and send it again.</p><a class="btn" href="{% url 'home' %}">Go home</a></div>
   </div>
+</section>
 {% endblock %}

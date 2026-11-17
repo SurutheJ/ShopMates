@@ -57,7 +57,7 @@ def main(base, user, password, paths):
             page.goto(f'{base}/accounts/login/')
             page.fill('input[name=login]', user)
             page.fill('input[name=password]', password)
-            page.click('button[type=submit]')
+            page.click('button[form=login-form]')
         for path in paths:
             page.goto(base + path)
             for item in page.evaluate(FIND, MIN):

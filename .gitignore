@@ -36,3 +36,5 @@ Thumbs.db
 
 # Database backups (contain user data)
 backups/
+# Local working notes, not for git
+docs/HANDOFF-*.md

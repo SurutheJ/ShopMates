@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 from django.urls import reverse
@@ -139,3 +140,22 @@ class InboxScreenTests(DealTestCase):
         html = self.html()
         self.assertIn('class="banner', html)
         self.assertIn('An admin will approve it', html)
+
+
+class InboxCenteringTests(DealTestCase):
+    """With no preview pane the list is centred like the My shop page, not left in a two-column grid."""
+
+    def split_class(self):
+        self.client.force_login(self.cafe_owner)
+        html = self.client.get(reverse('deals:inbox')).content.decode()
+        return re.search(r'<div class="(split[^"]*)"', html).group(1)
+
+    def test_an_empty_inbox_is_marked_solo_so_it_can_be_centred(self):
+        self.assertEqual(self.split_class(), 'split solo')
+
+    def test_an_inbox_with_a_deal_to_answer_keeps_the_two_column_layout(self):
+        self.proposed_deal()
+        self.client.force_login(self.books_owner)
+        html = self.client.get(reverse('deals:inbox')).content.decode()
+        self.assertEqual(re.search(r'<div class="(split[^"]*)"', html).group(1), 'split')
+        self.assertIn('class="detail-pane"', html)

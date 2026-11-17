@@ -5,21 +5,24 @@
 {% block app_class %} bare{% endblock %}
 {% block topbar_actions %}{% endblock %}
 
-{% block content %}
-  <div class="card card--narrow center">
-    <h1>Your code</h1>
-    <p class="muted">for {{ voucher.honoring_shop.name }}</p>
+{# designv2 "voucher": ready, used and expired states. The design's countdown and "saved on this phone" note are not built. #}
+{% block screen %}
+<section class="screen narrow active" id="s-voucher">
+  <div class="scroll mid">
     {% if used %}
-      <div class="code code--dead">{{ voucher.code }}</div>
-      <p class="notice">This code was already used.</p>
+      <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg></div>
+        <h1>Already used</h1><p class="sm">This code was already used. Thanks for visiting {{ voucher.honoring_shop.name }}.</p></div>
     {% elif expired %}
-      <div class="code code--dead">{{ voucher.code }}</div>
-      <p class="notice">This code has expired. Scan the QR code again to get a new one.</p>
+      <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg></div>
+        <h1>This code expired</h1><p class="sm">Scan the QR code at {{ voucher.referring_shop.name }} again to get a new one while the offer is running.</p></div>
     {% else %}
-      <div class="code">{{ voucher.code }}</div>
-      <p class="lead">{{ version.offer_text }}</p>
-      <p class="muted">{{ version.discount_percent }}% off. Show this at the counter. One use only. Valid until {{ voucher.expires_at|date:"M j, g:i a" }}</p>
+      <p class="muted sm">From {{ voucher.referring_shop.name }}</p>
+      <h1>{{ version.discount_percent }}% off at {{ voucher.honoring_shop.name }}</h1>
+      <div class="card"><p class="muted sm">Your one-time code</p><div class="code">{{ voucher.code }}</div>
+        <p class="sm">Valid until {{ voucher.expires_at|date:"M j, g:i a" }}</p></div>
+      <p class="sm">{{ version.offer_text }}. Show this screen to the staff at the register. One purchase, one use.</p>
+      <p class="xs muted">{{ voucher.honoring_shop.address }}, {{ voucher.honoring_shop.city }}</p>
     {% endif %}
-    <p class="muted small">{{ voucher.honoring_shop.address }}, {{ voucher.honoring_shop.city }}</p>
   </div>
+</section>
 {% endblock %}

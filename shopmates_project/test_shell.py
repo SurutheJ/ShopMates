@@ -41,7 +41,7 @@ class ShellStructureTests(DealTestCase):
 
     def test_shell_loads_tokens_app_css_and_one_small_script(self):
         html = self.client.get(reverse('home')).content.decode()
-        for name in ('css/tokens.css', 'css/app.css', 'css/base.css', 'js/app.js'):
+        for name in ('css/tokens.css', 'css/app.css', 'js/app.js'):
             self.assertIn(name, html)
 
     def test_page_content_sits_in_exactly_one_scroll_region(self):
@@ -247,3 +247,31 @@ class OneH1PerPageTests(DealTestCase):
         self.assertEqual(self.count_h1(reverse('deals:new', args=[self.books.pk])), 1)
         self.client.force_login(make_user('fresh'))
         self.assertEqual(self.count_h1(reverse('accounts:shop_create')), 1)
+
+
+class OfflineNoteTests(DealTestCase):
+    def test_every_page_has_a_hidden_offline_note_the_script_can_show(self):
+        html = self.client.get(reverse('home')).content.decode()
+        self.assertEqual(len(re.findall(r'<div class="banner bad" id="offline-note" role="status" hidden>', html)), 1)
+        self.assertIn('You are offline', html)
+
+
+class NoLegacyStylesheetTests(DealTestCase):
+    """Every page is ported, so the old base.css and its .legacy wrapper are gone from the shell."""
+
+    def test_pages_do_not_load_base_css_or_wrap_content_in_legacy(self):
+        for url in (reverse('home'), reverse('account_login')):
+            self.assertNotIn('css/base.css', self.client.get(url).content.decode(), url)
+        self.client.force_login(self.cafe_owner)
+        for url in (reverse('deals:inbox'), reverse('account_change_password')):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200, url)
+            html = response.content.decode()
+            self.assertNotIn('css/base.css', html, url)
+            self.assertNotIn('legacy', html, url)
+
+    def test_an_allauth_page_we_did_not_restyle_still_sits_in_one_narrow_scroll_screen(self):
+        self.client.force_login(self.cafe_owner)
+        html = self.client.get(reverse('account_change_password')).content.decode()
+        self.assertEqual(len(re.findall(r'class="screen narrow active"', html)), 1)
+        self.assertEqual(len(re.findall(r'<div class="scroll">', html)), 1)

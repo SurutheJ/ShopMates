@@ -2,29 +2,32 @@
 
 {% block title %}Stats{% endblock %}
 
-{% block content %}
-  <h1>Shopmates in numbers</h1>
-  <p class="muted">Anonymous totals across all shops. Categories with fewer than {{ stats.min_group_size }} shops are hidden so no single shop can be identified. The same data is at <a href="{% url 'deals:api_stats' %}">/api/stats/</a>.</p>
-
-  <div class="grid">
-    <div class="card"><div class="big">{{ stats.totals.shops }}</div><div class="muted">shops</div></div>
-    <div class="card"><div class="big">{{ stats.totals.deals_started }}</div><div class="muted">deals started</div></div>
-    <div class="card"><div class="big">{{ stats.totals.redemptions }}</div><div class="muted">redemptions</div></div>
+{# designv2 "stats": three tiles, then one card per category. The design's weekly chart is not built (the page has only totals). #}
+{% block screen %}
+<section class="screen narrow active" id="s-stats">
+  <div class="screen-head"><div><h1>Shopmates in numbers</h1><p class="muted sm">Anonymous totals, no shop names</p></div></div>
+  <div class="scroll">
+    <div class="stats">
+      <div class="stat"><b>{{ stats.totals.shops }}</b><span>shops</span></div>
+      <div class="stat"><b>{{ stats.totals.deals_started }}</b><span>deals started</span></div>
+      <div class="stat"><b>{{ stats.totals.redemptions }}</b><span>redemptions</span></div>
+    </div>
+    <div class="card">
+      <h3>By shop category</h3>
+      {% for g in stats.by_category %}
+        <h4>{{ g.category }}</h4>
+        <dl class="kv">
+          <dt>Shops</dt><dd>{{ g.shops }}</dd>
+          <dt>Deals</dt><dd>{{ g.deals }}</dd>
+          <dt>Redemptions</dt><dd>{{ g.redemptions }}</dd>
+          <dt>Per shop</dt><dd>{{ g.redemptions_per_shop }}</dd>
+        </dl>
+      {% empty %}
+        <p class="muted sm">Not enough shops in any category yet to show a breakdown.</p>
+      {% endfor %}
+      {% if stats.hidden_categories %}<p class="xs muted">{{ stats.hidden_categories }} categor{{ stats.hidden_categories|pluralize:"y,ies" }} hidden for privacy.</p>{% endif %}
+    </div>
+    <p class="xs muted">Categories with fewer than {{ stats.min_group_size }} shops are hidden so no single shop can be identified. The same data is at <a href="{% url 'deals:api_stats' %}">/api/stats/</a>.</p>
   </div>
-
-  <div class="card">
-    <h3>By shop category</h3>
-    {% for g in stats.by_category %}
-      <h4>{{ g.category }}</h4>
-      <dl class="kv">
-        <dt>Shops</dt><dd>{{ g.shops }}</dd>
-        <dt>Deals</dt><dd>{{ g.deals }}</dd>
-        <dt>Redemptions</dt><dd>{{ g.redemptions }}</dd>
-        <dt>Per shop</dt><dd>{{ g.redemptions_per_shop }}</dd>
-      </dl>
-    {% empty %}
-      <p class="muted">Not enough shops in any category yet to show a breakdown.</p>
-    {% endfor %}
-    {% if stats.hidden_categories %}<p class="muted small">{{ stats.hidden_categories }} categor{{ stats.hidden_categories|pluralize:"y,ies" }} hidden for privacy.</p>{% endif %}
-  </div>
+</section>
 {% endblock %}

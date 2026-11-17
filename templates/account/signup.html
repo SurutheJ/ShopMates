@@ -2,16 +2,23 @@
 
 {% block title %}Sign up{% endblock %}
 
-{% block content %}
-  <div class="card card--narrow">
-    <h1>Create your Shopmates account</h1>
-    <p class="muted">Already have an account? <a href="{% url 'account_login' %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value|urlencode }}{% endif %}">Log in</a>.</p>
-    <form method="post" action="{% url 'account_signup' %}">
-      {% csrf_token %}
-      {% include "partials/_form_fields.html" %}
-      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
-      <button class="btn btn-block" type="submit">Sign up</button>
-    </form>
+{# designv2 "signup" screen. The design has a Terms and Privacy consent box; those pages do not exist yet, so the link says so. #}
+{% block screen %}
+<section class="screen narrow active" id="s-signup">
+  <div class="scroll">
+    <h1>Create your account</h1>
     {% include "partials/_google_button.html" %}
+    {% if form.non_field_errors %}
+      <div class="banner bad" role="alert">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %} {% endif %}{% endfor %}</div>
+    {% endif %}
+    <form method="post" id="signup-form" action="{% url 'account_signup' %}">
+      {% csrf_token %}
+      {% include "partials/_auth_fields.html" %}
+      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+    </form>
+    <p class="muted sm"><a class="tap" href="#" data-soon="Terms and Privacy">Terms and Privacy</a></p>
+    <p class="muted sm">Already have an account? <a href="{% url 'account_login' %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value|urlencode }}{% endif %}">Log in</a></p>
   </div>
+  <div class="actionbar"><button class="btn block" type="submit" form="signup-form">Create account</button></div>
+</section>
 {% endblock %}

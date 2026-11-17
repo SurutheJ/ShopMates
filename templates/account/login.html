@@ -2,16 +2,22 @@
 
 {% block title %}Log in{% endblock %}
 
-{% block content %}
-  <div class="card card--narrow">
-    <h1>Log in to Shopmates</h1>
-    <p class="muted">Use your username or email. New here? <a href="{% url 'account_signup' %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value|urlencode }}{% endif %}">Create an account</a>.</p>
-    <form method="post" action="{% url 'account_login' %}">
-      {% csrf_token %}
-      {% include "partials/_form_fields.html" %}
-      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
-      <button class="btn btn-block" type="submit">Log in</button>
-    </form>
+{# designv2 "login" screen. Google first (when configured), then the form; the Log in button is pinned. #}
+{% block screen %}
+<section class="screen narrow active" id="s-login">
+  <div class="scroll">
+    <h1>Welcome back</h1>
     {% include "partials/_google_button.html" %}
+    {% if form.non_field_errors %}
+      <div class="banner bad" role="alert">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %} {% endif %}{% endfor %}</div>
+    {% endif %}
+    <form method="post" id="login-form" action="{% url 'account_login' %}">
+      {% csrf_token %}
+      {% include "partials/_auth_fields.html" %}
+      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+    </form>
+    <p class="muted sm">New here? <a href="{% url 'account_signup' %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value|urlencode }}{% endif %}">Create an account</a></p>
   </div>
+  <div class="actionbar"><button class="btn block" type="submit" form="login-form">Log in</button></div>
+</section>
 {% endblock %}

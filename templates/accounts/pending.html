@@ -2,14 +2,18 @@
 
 {% block title %}Waiting for approval{% endblock %}
 
-{% block content %}
-  <div class="card card--narrow">
+{% block screen %}
+<section class="screen narrow active" id="s-pending">
+  <div class="scroll mid">
+    <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg></div>
     {% if shop.status == 'suspended' %}
-    <h1>Shop suspended</h1>
-    <p class="muted">{{ shop.name }} was suspended by an admin, so it cannot propose or redeem deals right now. Ask the ShopMates team to review it.</p>
+      <h1>Shop suspended</h1>
+      <p class="sm">{{ shop.name }} was suspended by an admin, so it cannot propose or redeem deals right now. Ask the ShopMates team to review it.</p>
     {% else %}
-    <h1>Waiting for approval</h1>
-    <p class="muted">{{ shop.name }} is {{ shop.get_status_display|lower }}. An admin needs to approve new shops before they can propose or redeem deals.</p>
+      <h1>Waiting for approval</h1>
+      <p class="sm">{{ shop.name }} is {{ shop.get_status_display|lower }}. An admin needs to approve new shops before they can propose or redeem deals.</p>
     {% endif %}
+    <a class="btn ghost" href="{% url 'home' %}">Back to start</a></div>
   </div>
+</section>
 {% endblock %}

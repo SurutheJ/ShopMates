@@ -17,7 +17,7 @@ class ShopForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs['class'] = 'input'   # the designv2 field style; these screens are outside .legacy
+            field.widget.attrs['class'] = 'input'   # the designv2 field style
 
     def clean(self):
         cleaned = super().clean()

@@ -5,16 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Something went wrong | Shopmates</title>
   <style>
-    body { margin: 0; font-family: system-ui, sans-serif; background: #f6f7f7; color: #1b2a2a; }
-    main { max-width: 28rem; margin: 4rem auto; padding: 0 1rem; }
-    a { color: #0f766e; }
+    /* Stands alone on purpose: no static files, no database. Colours and shapes copy designv2/tokens.css. */
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #fff; color: #1A1410; }
+    main { max-width: 28rem; margin: 0 auto; padding: 4rem 1.5rem; text-align: center; }
+    h1 { font-size: 1.75rem; margin: 0 0 .5rem; }
+    p { margin: 0 0 1.5rem; color: #6A5C54; }
+    a { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 1.5rem; border-radius: 16px; background: #1A1410; color: #fff; font-weight: 700; text-decoration: none; }
   </style>
 </head>
 <body>
   <main>
     <h1>Something went wrong</h1>
     <p>That was our mistake, not yours. Try again in a minute.</p>
-    <p><a href="/">Go home</a></p>
+    <a href="/">Go home</a>
   </main>
 </body>
 </html>

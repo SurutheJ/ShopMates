@@ -10,7 +10,6 @@
   <link rel="apple-touch-icon" href="{% static 'img/app-icon-192.png' %}">
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
-  <link rel="stylesheet" href="{% static 'css/base.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -42,9 +41,10 @@
   {% endif %}
 
   <main class="main">
+    <div class="banner bad" id="offline-note" role="status" hidden>You are offline. Reconnect to send or confirm anything.</div>
     {% block screen %}
-      <section class="screen active">
-        <div class="scroll"><div class="legacy">{% block content %}{% endblock %}</div></div>
+      <section class="screen narrow active">
+        <div class="scroll">{% block content %}{% endblock %}</div>
       </section>
     {% endblock %}
     {% if messages %}

@@ -2,10 +2,11 @@
 
 {% block title %}Not allowed{% endblock %}
 
-{% block content %}
-  <div class="card card--narrow">
-    <h1>Not allowed</h1>
-    <p class="muted">Your account cannot open this page.</p>
-    <p><a href="{% url 'home' %}">Go home</a></p>
+{% block screen %}
+<section class="screen narrow active" id="s-403">
+  <div class="scroll mid">
+    <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></div>
+      <h1>Not allowed</h1><p class="sm">Your account cannot open this page.</p><a class="btn" href="{% url 'home' %}">Go home</a></div>
   </div>
+</section>
 {% endblock %}

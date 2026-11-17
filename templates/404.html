@@ -2,10 +2,11 @@
 
 {% block title %}Page not found{% endblock %}
 
-{% block content %}
-  <div class="card card--narrow">
-    <h1>Page not found</h1>
-    <p class="muted">That page does not exist, or the link is out of date.</p>
-    <p><a href="{% url 'home' %}">Go home</a></p>
+{% block screen %}
+<section class="screen narrow active" id="s-404">
+  <div class="scroll mid">
+    <div class="empty"><div class="big"><svg class="i" aria-hidden="true"><use href="#i-compass"/></svg></div>
+      <h1>Page not found</h1><p class="sm">That page does not exist, or the link is out of date.</p><a class="btn" href="{% url 'home' %}">Go home</a></div>
   </div>
+</section>
 {% endblock %}

@@ -206,17 +206,33 @@
       .then(function (r) { return r.json().then(function (d) { return {ok: r.ok, data: d}; }); });
   }
 
+  // Loading and error states for the AI buttons: a spinner while waiting, bold red text when it failed.
+  function setStatus(el, text, state) {
+    el.textContent = text;
+    el.classList.toggle('busy', state === 'busy');
+    el.classList.toggle('failed', state === 'failed');
+  }
+
+  // Offline: no service worker yet, so this only says so and hides again when the connection returns.
+  var offlineNote = document.getElementById('offline-note');
+  if (offlineNote) {
+    var showOffline = function () { offlineNote.hidden = navigator.onLine; };
+    window.addEventListener('online', showOffline);
+    window.addEventListener('offline', showOffline);
+    showOffline();
+  }
+
   // "Draft with AI" on the new-deal form.
   var draftButton = document.getElementById('ai-draft');
   if (draftButton) {
     var draftStatus = document.getElementById('ai-status');
     var dealForm = document.getElementById('deal-form');
     draftButton.addEventListener('click', function () {
-      draftStatus.textContent = 'Drafting...';
+      setStatus(draftStatus, 'Drafting...', 'busy');
       var csrf = dealForm.querySelector('[name=csrfmiddlewaretoken]').value;
       postJson(draftButton.dataset.url, csrf, new URLSearchParams({recipient_id: draftButton.dataset.recipient}))
         .then(function (res) {
-          if (!res.ok) { draftStatus.textContent = res.data.error || 'Could not draft.'; return; }
+          if (!res.ok) { setStatus(draftStatus, res.data.error || 'Could not draft.', 'failed'); return; }
           var terms = res.data.terms;
           Object.keys(terms).forEach(function (key) {
             var el = document.getElementById('id_' + key);
@@ -224,11 +240,11 @@
           });
           document.getElementById('id_message').value = res.data.message;
           var src = (res.data.sources && res.data.sources.length) ? ' Grounded in playbook: ' + res.data.sources.join(', ') + '.' : '';
-          draftStatus.textContent = res.data.source === 'ai'
+          setStatus(draftStatus, res.data.source === 'ai'
             ? 'Draft filled in.' + src + ' Review and edit before sending.'
-            : 'Starting terms filled in (' + res.data.reason + '). Review before sending.';
+            : 'Starting terms filled in (' + res.data.reason + '). Review before sending.');
         })
-        .catch(function () { draftStatus.textContent = 'Could not draft. Try again.'; });
+        .catch(function () { setStatus(draftStatus, 'Could not draft. Try again.', 'failed'); });
     });
   }
 
@@ -237,18 +253,18 @@
   if (coachButton) {
     var coachStatus = document.getElementById('coach-status');
     coachButton.addEventListener('click', function () {
-      coachStatus.textContent = 'Thinking...';
+      setStatus(coachStatus, 'Thinking...', 'busy');
       postJson(coachButton.dataset.url, coachButton.dataset.csrf)
         .then(function (res) {
-          if (!res.ok) { coachStatus.textContent = res.data.error || 'Could not explain.'; return; }
-          coachStatus.textContent = '';
+          if (!res.ok) { setStatus(coachStatus, res.data.error || 'Could not explain.', 'failed'); return; }
+          setStatus(coachStatus, '');
           document.getElementById('coach-text').textContent = res.data.explanation;
           document.getElementById('coach-source').textContent = res.data.source === 'ai'
             ? 'Written by AI from numbers the app computed. Numbers were checked.'
             : 'Built-in explanation (' + res.data.reason + ')';
           document.getElementById('coach-out').hidden = false;
         })
-        .catch(function () { coachStatus.textContent = 'Could not explain. Try again.'; });
+        .catch(function () { setStatus(coachStatus, 'Could not explain. Try again.', 'failed'); });
     });
   }
 

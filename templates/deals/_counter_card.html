@@ -1,6 +1,7 @@
+{% load static %}
 <article class="counter-card{% if copy %} copy{% endif %}">
   <div class="cc-text">
-    <div class="cc-brand">{{ my_shop.name }} + {{ partner.name }}</div>
+    <div class="cc-brand"><img class="cc-logo" src="{% static 'img/logo-mark.png' %}" alt="">{{ my_shop.name }} + {{ partner.name }}</div>
     <h1>Next door? Take {{ version.discount_percent }}% off at {{ partner.name }}.</h1>
     <div class="cc-perk">Show the code at the register.</div>
     <ol>

@@ -1,11 +1,12 @@
-/* Counter card (task 2.22, design/qr-card.html). On screen: one card, scaled to the phone.
+/* Counter card (designv2/qr-card.html). On screen: one card, scaled to the phone.
    Printed: two copies on one Letter page with a cut line. */
 .card-page{padding:var(--s-3);align-items:center}
 .card-sheet{width:100%;max-width:7.5in}
-.counter-card{background:#fff;border:2px solid var(--primary);border-radius:var(--r-md);padding:var(--s-3);display:grid;gap:var(--s-2);text-align:center}
+.counter-card{background:#fff;border:2px solid var(--coral);border-radius:var(--r-md);padding:var(--s-3);display:grid;gap:var(--s-2);text-align:center}
 .counter-card h1{font-size:20px;line-height:1.15;margin:0}
-.cc-brand{color:var(--primary);font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
-.cc-perk{font-weight:800;color:var(--primary-press);font-size:15px}
+.cc-brand{display:flex;align-items:center;justify-content:center;gap:var(--s-2);color:var(--coral-ink);font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.cc-logo{height:32px;width:auto}
+.cc-perk{font-weight:800;color:var(--teal-ink);font-size:15px}
 .counter-card ol{margin:0;padding-left:20px;font-size:13px;line-height:1.4;text-align:left}
 .cc-qr{text-align:center}
 .cc-code{width:min(44vw,2.4in);aspect-ratio:1;margin:0 auto;background:#fff;border:2px solid var(--ink);border-radius:8px;overflow:hidden}
@@ -25,7 +26,8 @@
   .cut{display:block;border-top:2px dashed #aab;margin:.1in 0;text-align:center;font-size:10px;color:#889;height:0}
   .counter-card{height:4.7in;padding:.35in .45in;grid-template-columns:1fr 2.4in;gap:.35in;align-items:center;text-align:left;border-radius:18px;break-inside:avoid}
   .counter-card h1{font-size:34px;line-height:1.08;margin:.1in 0}
-  .cc-brand{font-size:14px}
+  .cc-brand{font-size:14px;justify-content:flex-start}
+  .cc-logo{height:44px}
   .cc-perk{font-size:22px}
   .counter-card ol{margin:.18in 0 0;font-size:16px;line-height:1.5}
   .cc-code{width:2.4in}

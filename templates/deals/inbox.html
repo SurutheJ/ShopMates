@@ -24,7 +24,7 @@
   </div>
 
 {% else %}
-  <div class="split">
+  <div class="split{% if not selected %} solo{% endif %}">
     <div class="list-pane">
       <div class="screen-head"><div><h1>{{ my_shop.name }}</h1><p class="muted sm">What needs your attention</p></div></div>
       <div class="seg" role="tablist" data-tabs>
