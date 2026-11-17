@@ -33,6 +33,10 @@ Keep this current. When a decision changes, edit it here with the date.
 | I9 | The draft fallback is a rule-based draft with a cap scaled by the spend gap | Shown with the reason AI was not used |
 | I10 | Coordinates are entered by hand; Radar uses OpenStreetMap for nearby places | Address lookup not built |
 | I11 | The public stats API hides any category with fewer than 5 shops | Avoids identifying a shop |
+| I12 | Every screen uses the designv2 layout. The old `.legacy` styles are gone (`static/css/base.css` is an empty comment and can be deleted) | Files and results: `docs/STAGE3-REPORT.md`, `docs/STAGE4-REPORT.md` |
+| I13 | The landing page keeps its own wording and has no public-numbers row. Login keeps "Remember Me". Sign-up shows Terms and Privacy as "coming soon" | To confirm. The Terms and Privacy pages are open question 4 |
+| I14 | The offline state is a banner only, with no service worker | Pages do not work offline |
+| I15 | The password reset text gives no link lifetime | The design says one hour; allauth's default is longer |
 
 ## Open
 
@@ -65,5 +69,7 @@ Our angle is a negotiated agreement between two walk-in shops, with caps, expiry
 - Phone camera scanning of the QR codes
 - A real Overpass request from Radar
 - Safari and Firefox, and the app on a real phone
+- The 360px width by eye (only checked by script and small screenshots), the ready voucher page and the 403 pages in a browser
+- The offline banner with a real lost connection (only tested by firing the browser's offline event)
 - Any shop owner's willingness to pilot
 - HSTS is short on purpose; `check --deploy` still warns about subdomains and preload

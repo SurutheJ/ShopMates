@@ -37,8 +37,18 @@ The demo data includes an active cafe and bookstore deal with two weeks of redem
 ## Test
 
 ```bash
+.venv/bin/python manage.py check
 .venv/bin/python manage.py test
 ```
+
+516 tests passed on 16 Nov. For pages there are two browser checks (they need Playwright: `pip install playwright && playwright install chromium`). Run them against a running copy of the app on its own port with a scratch copy of the database, not your real data:
+
+```bash
+python designv2/check_layout.py http://127.0.0.1:8002 demo_cafe shopmates-demo-1 /inbox/ /discover/   # the page itself must not scroll
+python scripts/check_targets.py http://127.0.0.1:8002 demo_cafe shopmates-demo-1 /inbox/ /redeem/       # tap targets 44px, text 16px
+```
+
+`check_targets.py` signs in through the login page's Log in button (`button[form=login-form]`). The Google button comes first on that page, so a script that clicks the first submit button would click Google instead.
 
 Covers the negotiation rules, redemption rules (double use, caps, expiry, wrong shop), cross-shop access, the APIs and exports, the AI service with a fake client, and shop setup. Run `manage.py makemigrations --check` before committing to confirm the migrations match the models.
 

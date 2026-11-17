@@ -26,7 +26,7 @@ Team 22: Suruthe Jayachandran and Sahithi Madabhushi, equal contributors on the 
 - AI deal draft, deal coach and playbook Q&A, each checked in Python and each with a built-in fallback
 
 **Evaluation and testing**
-- 479 automated tests and a GitHub Actions workflow
+- 516 automated tests and a GitHub Actions workflow
 - `evaluate_ai` report with retrieval and guardrail results, failure analysis and measured improvements
 - Query counts and a load test
 
@@ -139,4 +139,5 @@ docs/                product, architecture, evaluation, deployment
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Settings and PythonAnywhere steps |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Setup details and known limits |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Decisions, open questions, unverified items |
+| [docs/STAGE3-REPORT.md](docs/STAGE3-REPORT.md), [docs/STAGE4-REPORT.md](docs/STAGE4-REPORT.md) | Restyle reports: files changed and results per stage |
 | [docs/BRANCHING.md](docs/BRANCHING.md) | Git workflow |
