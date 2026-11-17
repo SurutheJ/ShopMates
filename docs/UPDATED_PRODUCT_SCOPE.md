@@ -25,18 +25,12 @@ Pilot area: shops near the UIUC campus. We have not yet asked any shop owner, so
 2. **Staff-confirmed QR redemption.** Caps, dates, expiry, and a redemption that can only count once.
 3. **Fairness and AI help.** Sent vs received, estimated profit for each side in dollars, a suggested renewal, Deal Radar to find good partners, and an AI draft and coach whose numbers the app checks.
 
-## What changed from P2-A2
+## Major changes from P2-A2
 
-| P2-A2 plan | Now |
-|---|---|
-| Nearby search using a free geocoding service | Owners enter coordinates by hand. Deal Radar ranks nearby shops on a map using OpenStreetMap data. Address lookup is still to do. |
-| AI drafts proposal wording and suggests balanced terms | Done as three parts: a draft, a fairness calculator (plain arithmetic, no model) and a deal coach. |
-| Fairness check at the end of a deal | Also available before sending, in step 4 of the proposal form. |
-| Owners, staff and admins | Same. Staff also get a read-only list of their shop's pending deals. |
-| Public stats API, protected APIs, CSV and JSON export | Built as planned. |
-| Redemption charts | Built on the deal summary. |
-| Not in the proposal | Partner match score, playbook Q&A, QR card downloads (PNG, SVG, PDF), a new visual design, a health check and database backup command. |
-| Notifications | Not built. The inbox is the only place to see waiting actions. |
+- **Finding partners.** We planned a nearby search backed by a geocoding service. We built Deal Radar instead, which ranks nearby shops on a map using OpenStreetMap data. Address lookup is still open, so owners type coordinates for now.
+- **The AI helper.** We planned one helper that drafts proposals and suggests terms. It is now three pieces: a draft, a fairness calculator that is plain arithmetic, and a coach that explains the numbers. The model never produces a number the app relies on.
+- **Fairness in dollars.** It is measured by estimated profit for each shop, and an owner can check it before sending a deal, not only after it ends.
+- **Notifications are on hold.** The inbox is the only place waiting actions show up.
 
 Still out of scope: payments, customer accounts, automatic shop matching.
 

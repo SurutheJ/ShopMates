@@ -4,19 +4,40 @@ Neighboring shops promote each other.
 
 ShopMates is a Django web app for independent shops that want to cross-promote with the shop next door. One shop proposes a deal ("10% off a coffee with a bookstore receipt"), the neighbor accepts, counters or declines, and once it is active customers redeem it with a QR code that staff confirm on a phone. Both shops can see how many customers each one sent the other, and the app points out when a deal is lopsided.
 
-Team 22 (INFO 490, UIUC): Suruthe Jayachandran and Sahithi Madabhushi. Both of us are equal contributors on the whole project.
+Team 22: Suruthe Jayachandran and Sahithi Madabhushi, equal contributors on the whole project.
 
-## Status (first draft)
+## What's built
 
-Working locally, not deployed yet. 479 automated tests pass.
+**Product and user experience**
+- Shop setup, an inbox of waiting actions, Discover, a four-step proposal form, deal pages with history and chat
+- Owner and staff roles with a navigation that changes to match
+- Clear feedback on every form, plus a QR card shops can download as PNG, SVG or PDF
 
-- Shop accounts, Google sign-in, owner and staff roles
-- Discover shops, propose a deal, negotiate (accept, counter, decline), full history
-- QR vouchers, staff redeem page with cap, date and duplicate checks
-- Deal summary with sent vs received, CSV and JSON export, public stats API, two private APIs
-- AI: partner match score, Deal Radar, fairness calculator, AI deal draft, deal coach, playbook Q&A
+**Django application**
+- Models for shops, memberships, deals, deal versions, messages, events, vouchers and redemptions, with migrations
+- Negotiation: accept, counter or decline, with a version history
+- Redemption by QR code and staff confirmation, with cap, date and duplicate checks
+- Google sign-in, login and logout, protected pages and per-shop access checks
+- Search and filters on Discover, a deal summary with charts, CSV and JSON export, a public stats API and two private APIs
 
-Not done: hosting on PythonAnywhere, negotiation copilot, terms checker, notifications. See [docs/ROADMAP.md](docs/ROADMAP.md).
+**AI**
+- Partner match score and Deal Radar (a map of nearby shops, ranked)
+- Fairness calculator on the proposal form
+- AI deal draft, deal coach and playbook Q&A, each checked in Python and each with a built-in fallback
+
+**Evaluation and testing**
+- 479 automated tests and a GitHub Actions workflow
+- `evaluate_ai` report with retrieval and guardrail results, failure analysis and measured improvements
+- Query counts and a load test
+
+**Production readiness**
+- Separate dev and prod settings, secrets in `.env`, rate limits, a security policy for browsers, logging, a health check and a database backup command
+- Cost comparison and scaling notes in `docs/PRODUCTION.md`
+
+**Documentation**
+- This README, `README_AI.md` and the files in `docs/`
+
+Still to come: hosting, a negotiation copilot, a terms checker and notifications. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Why it is different
 

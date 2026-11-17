@@ -19,6 +19,7 @@
   L.control.attribution({ prefix: false }).addTo(map);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
+    referrerPolicy: 'origin',   // OpenStreetMap refuses tiles that arrive with no Referer; the site-wide policy sends none
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 

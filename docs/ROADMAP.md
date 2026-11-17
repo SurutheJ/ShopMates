@@ -1,7 +1,5 @@
 # Roadmap to December 8
 
-Suruthe Jayachandran and Sahithi Madabhushi are equal contributors on every row below. Dates are our targets.
-
 ## Task table
 
 | Task | Current status | Responsible Member | Expected completion |
