@@ -11,17 +11,6 @@
 | Deployment | Not deployed. Local run and prod settings work. PythonAnywhere upload, outbound allowlist check and Google redirect URI to do | Suruthe Jayachandran and Sahithi Madabhushi (equal) | Nov 24 |
 | Documentation | README, AI doc, scope, evaluation, production notes written. Update after deployment and add screenshots | Suruthe Jayachandran and Sahithi Madabhushi (equal) | Dec 7 |
 
-## Order of work
-
-1. Deploy to PythonAnywhere and fix what breaks (allowlist, static files, Google sign-in, one live AI call).
-2. Finish Radar (address lookup, daily limit, timing) and the remaining AI features.
-3. Show the app to three to five shops near campus and record what they say.
-4. Final evaluation numbers, docs check, 3-minute demo video, final push on Dec 8.
-
-## Cut rules
-
-If time runs short, we drop in this order: negotiation copilot, terms checker, notifications. Deployment, evaluation and the docs are not cut.
-
 ## Done so far
 
 - Shop accounts, Google sign-in (tested locally), owner and staff roles, admin approval
